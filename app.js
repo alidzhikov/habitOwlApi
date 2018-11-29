@@ -5,7 +5,7 @@ const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 
 const habitRoutes = require('./api/routes/habits');
-const habitDateRoutes = require('./api/routes/habit-dates');
+const actDateRoutes = require('./api/routes/acts');
 const userRoutes = require('./api/routes/users');
 
 mongoose.connect("mongodb+srv://ogi-user-007:75HN3ikuVnyFxjVl@habitowl0-cfcie.mongodb.net/test");
@@ -26,7 +26,7 @@ app.use((req, res, next) => {
 });
 
 app.use('/habits', habitRoutes);
-app.use('/habit-dates', habitDateRoutes);
+app.use('/acts', actDateRoutes);
 app.use('/user', userRoutes);
 
 app.use((req, res, next) => {
