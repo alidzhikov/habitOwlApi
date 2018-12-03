@@ -8,7 +8,28 @@ const habitRoutes = require('./api/routes/habits');
 const habitDateRoutes = require('./api/routes/habit-dates');
 const userRoutes = require('./api/routes/users');
 
-mongoose.connect("mongodb+srv://ogi-user-007:75HN3ikuVnyFxjVl@habitowl0-cfcie.mongodb.net/test");
+
+const options = {
+    autoIndex: false, // Don't build indexes
+    reconnectTries: 3, // Retry up to 30 times
+    reconnectInterval: 500, // Reconnect every 500ms
+    poolSize: 10, // Maintain up to 10 socket connections
+    // If not connected, return errors immediately rather than waiting for reconnect
+    bufferMaxEntries: 0
+  }
+
+const connectWithRetry = () => {
+  console.log('MongoDB connection with retry')
+  mongoose.connect("mongodb+srv://ogi-user-007:75HN3ikuVnyFxjVl@habitowl0-cfcie.mongodb.net/test", { useNewUrlParser: true })
+  .then(()=>{
+    console.log('MongoDB is connected')
+  }).catch(err=>{
+    console.log('MongoDB connection unsuccessful, retry after 5 seconds.')
+    setTimeout(connectWithRetry, 5000)
+  })
+}
+
+connectWithRetry();
 
 app.use(morgan('dev'));
 app.use(bodyParser.urlencoded({extended: false}));
