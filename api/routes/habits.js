@@ -13,7 +13,7 @@ router.get('/', checkAuth, (req, res, next) => {
         console.log(docs);
         const response = {
             count: docs.length,
-            products: docs.map(doc => {
+            habits: docs.map(doc => {
                 return {
                     name: doc.name,
                     type: doc.type,
@@ -43,13 +43,15 @@ router.post('/', checkAuth, (req, res, next) => {
     habit.save()
     .then(res=> {
         console.log(res);
+        res.status(200).json({
+            message: 'Handling POST requests to /habits ' + habit.id,
+            createdHabit: habit
+        });
     })
-    .catch(err=> console.log(err));
-    console.log('executed');
-    res.status(200).json({
-        message: 'Handling POST requests to /habits ' + habit.id,
-        createdHabit: habit
-    });
+    .catch(err=> { 
+        console.log(err);
+        res.status(500).json({error: err});
+    });   
 });
 
 router.get('/:habitId',(req, res, next) => {
@@ -86,7 +88,7 @@ router.patch('/:habitId',(req, res, next) => {
     .catch(err => {
         console.log(err);
         res.status(500).json({error: err});
-    })
+    });
 });
 
 router.delete('/:habitId',(req, res, next) => {
@@ -100,6 +102,6 @@ router.delete('/:habitId',(req, res, next) => {
         console.log(err);
         res.status(500).json({error: err});
     });
-
 });
+
 module.exports = router;
