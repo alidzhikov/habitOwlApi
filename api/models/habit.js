@@ -4,7 +4,9 @@ const habitSchema = mongoose.Schema({
     _id: mongoose.Schema.Types.ObjectId,
     name:  { type: String, required: true},
     comment:  { type: String, required: false},
-    type: { type: String, required: true} //later to enum
+    category: { type: Number, required: true},
+    desiredFrequency: { type: Number, required: true},
+    createdAt: { type: Date, required: true},
 });
 
 module.exports = mongoose.model('Habit', habitSchema);

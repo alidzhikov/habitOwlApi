@@ -5,9 +5,9 @@ const checkAuth = require('../middleware/check-auth');
 
 const Habit = require('../models/habit');
 
-router.get('/', checkAuth, (req, res, next) => {
+router.get('/',  (req, res, next) => {
     Habit.find()
-    .select('_id name type')
+    .select('_id name comment category desiredFrequency createdAt')
     .exec()
     .then(docs => {
         console.log(docs);
@@ -15,9 +15,12 @@ router.get('/', checkAuth, (req, res, next) => {
             count: docs.length,
             habits: docs.map(doc => {
                 return {
-                    name: doc.name,
-                    type: doc.type,
                     _id: doc._id,
+                    name: doc.name,
+                    comment: doc.comment,
+                    category: doc.category,
+                    desiredFrequency: doc.desiredFrequency,
+                    createdAt: doc.createdAt,
                     request: {
                         type: 'GET',
                         url: 'http://localhost:3000/habits/' + doc.id
@@ -34,14 +37,17 @@ router.get('/', checkAuth, (req, res, next) => {
 });
 
 router.post('/', checkAuth, (req, res, next) => {
+    console.log(req.body);
     const habit = new Habit({
         _id: new mongoose.Types.ObjectId(),
         name: req.body.name,
         comment: req.body.comment,
-        type: req.body.type
+        category: req.body.category,
+        desiredFrequency: req.body.desiredFrequency,
+        createdAt: req.body.createdAt,
     });
     habit.save()
-    .then(res=> {
+    .then(r => {
         console.log(res);
         res.status(200).json({
             message: 'Handling POST requests to /habits ' + habit.id,
@@ -74,16 +80,10 @@ router.get('/:habitId',(req, res, next) => {
 
 router.patch('/:habitId',(req, res, next) => {
     const id = req.params.habitId;
-    const updateOps = {};
-    console.log(req.body);
-    for(const ops of req.body){
-        updateOps[ops.propName] = ops.value;
-    }
-    Habit.update({_id: id}, { $set : updateOps })
+    Habit.update({_id: id}, { $set : req.body })
     .exec()
     .then(result => {
-        console.log(result);
-        res.status(200).json(result);
+        res.status(200).json({message: 'Succesfully updated habit', updatedHabit: req.body});
     })
     .catch(err => {
         console.log(err);
@@ -96,7 +96,7 @@ router.delete('/:habitId',(req, res, next) => {
     Habit.findOneAndRemove({_id: id})
     .exec()
     .then(response => {
-        res.status(200).json(response);
+        res.status(200).json({message:'Succesfully deleted habit'});
     })
     .catch(err => {
         console.log(err);

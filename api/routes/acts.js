@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const mongoose = require('mongoose');
 const Act = require('../models/act');
 
 router.get('/', (req, res, next) => {
@@ -32,14 +33,25 @@ router.get('/', (req, res, next) => {
 });
 
 router.post('/', (req, res, next) => {
-    const act = {
+    console.log(req.body);
+    const act = new Act({
         _id: new mongoose.Types.ObjectId(),
         habitId: req.body.habitId,
         date: req.body.date,
-        fulfilled: req.body.fulfilled
-    };
-    act.save()
-    .then(res=> {
+        createdAt: req.body.createdAt
+    });
+    // req.body.forEach(el => {
+    //     const act = new Act({
+    //         _id: new mongoose.Types.ObjectId(),
+    //         habitId: el.habitId,
+    //         date: el.date,
+    //         createdAt: el.createdAt
+    //     });
+    //     console.log(el);
+    //     console.log(act);
+    //     act.save()
+    // })
+    act.save().then(r => {
         console.log(res);
         res.status(200).json({
             message: 'Handling POST requests to /acts ' + act.id,
