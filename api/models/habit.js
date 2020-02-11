@@ -6,6 +6,7 @@ const habitSchema = mongoose.Schema({
     comment:  { type: String, required: false},
     category: { type: Number, required: true},
     desiredFrequency: { type: Number, required: true},
+    reward: { type: Number, required: false},
     createdAt: { type: Date, required: true},
 });
 

@@ -7,9 +7,10 @@ const Habit = require('../models/habit');
 
 router.get('/',  (req, res, next) => {
     Habit.find()
-    .select('_id name comment category desiredFrequency createdAt')
+    .select('_id name comment category desiredFrequency reward createdAt')
     .exec()
     .then(docs => {
+        console.log('-----------');
         console.log(docs);
         const response = {
             count: docs.length,
@@ -36,14 +37,14 @@ router.get('/',  (req, res, next) => {
     });
 });
 
-router.post('/', checkAuth, (req, res, next) => {
-    console.log(req.body);
+router.post('/', (req, res, next) => {//checkAuth
     const habit = new Habit({
         _id: new mongoose.Types.ObjectId(),
         name: req.body.name,
         comment: req.body.comment,
         category: req.body.category,
         desiredFrequency: req.body.desiredFrequency,
+        reward: req.body.reward,
         createdAt: req.body.createdAt,
     });
     habit.save()
@@ -69,7 +70,7 @@ router.get('/:habitId',(req, res, next) => {
             if(doc){
                 res.status(200).json(doc);   
             }else{
-                res.status(404).json({message: 'No entry found for provided ID'});
+                res.status(404).json({message: 'No entry found for provided ID.'});
             }
         })
         .catch(err => { 
@@ -80,12 +81,17 @@ router.get('/:habitId',(req, res, next) => {
 
 router.patch('/:habitId',(req, res, next) => {
     const id = req.params.habitId;
-    Habit.update({_id: id}, { $set : req.body })
+    console.log(req.body);
+    const updateOps = {};
+    console.log(updateOps);
+    console.log("a/sa/d");
+    Habit.updateOne({_id: id}, { $set : req.body })
     .exec()
     .then(result => {
-        res.status(200).json({message: 'Succesfully updated habit', updatedHabit: req.body});
+        res.status(200).json({message: 'Succesfully updated habit.', updatedHabit: req.body});
     })
     .catch(err => {
+        console.log("errr");
         console.log(err);
         res.status(500).json({error: err});
     });
@@ -96,7 +102,7 @@ router.delete('/:habitId',(req, res, next) => {
     Habit.findOneAndRemove({_id: id})
     .exec()
     .then(response => {
-        res.status(200).json({message:'Succesfully deleted habit'});
+        res.status(200).json({message:'Succesfully deleted habit.'});
     })
     .catch(err => {
         console.log(err);

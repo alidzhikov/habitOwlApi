@@ -20,9 +20,10 @@ const options = {
 
 const connectWithRetry = () => {
   console.log('MongoDB connection with retry')
-  mongoose.connect("mongodb+srv://ogi-user-007:75HN3ikuVnyFxjVl@habitowl0-cfcie.mongodb.net/test", { useNewUrlParser: true })
+  mongoose.connect('mongodb://localhost:27017/howl', { useNewUrlParser: true })
   .then(()=>{
-    console.log('MongoDB is connected')
+    console.log('MongoDB is connected');
+
   }).catch(err=>{
     console.log('MongoDB connection unsuccessful, retry after 5 seconds.')
     setTimeout(connectWithRetry, 5000)
@@ -31,6 +32,42 @@ const connectWithRetry = () => {
 
 connectWithRetry();
 
+// var asd = [
+//   {"name":"Workout","comment":"its good for ya","category":{"$numberInt":"2"},"desiredFrequency":{"$numberInt":"1"},"createdAt":{"$date":{"$numberLong":"1545070498219"}},"__v":{"$numberInt":"0"}},
+//   {"name":"Meditate","comment":"30min atleast","category":{"$numberInt":"3"},"desiredFrequency":{"$numberInt":"0"},"createdAt":{"$date":{"$numberLong":"1545070513654"}},"__v":{"$numberInt":"0"}},
+//   {"name":"Life purpose","comment":"Self inquiry, journaling, contemplation","category":{"$numberInt":"1"},"desiredFrequency":{"$numberInt":"0"},"createdAt":{"$date":{"$numberLong":"1545070538425"}},"__v":{"$numberInt":"0"}},
+//   {"name":"Read books","comment":"Atleast 30 minutes ","category":{"$numberInt":"1"},"desiredFrequency":{"$numberInt":"0"},"createdAt":{"$date":{"$numberLong":"1545070572742"}},"__v":{"$numberInt":"0"}},
+//   {"name":"Vizualizations","comment":"For now do 2 for 10 mins","category":{"$numberInt":"1"},"desiredFrequency":{"$numberInt":"0"},"createdAt":{"$date":{"$numberLong":"1545070796437"}},"__v":{"$numberInt":"0"}},
+//   {"name":"Affirmations","comment":"Do 5 every day for 5 mins confidence independent learn fast, ppl,creative","category":{"$numberInt":"1"},"desiredFrequency":{"$numberInt":"0"},"createdAt":{"$date":{"$numberLong":"1545070840699"}},"__v":{"$numberInt":"0"}},
+//   {"name":"Code skills","comment":"every day for 30 or 1hr","category":{"$numberInt":"0"},"desiredFrequency":{"$numberInt":"0"},"createdAt":{"$date":{"$numberLong":"1545070902563"}},"__v":{"$numberInt":"0"}},
+//   {"name":"Robotics","comment":"Improve skills in robotics","category":{"$numberInt":"0"},"desiredFrequency":{"$numberInt":"0"},"createdAt":{"$date":{"$numberLong":"1545070979967"}},"__v":{"$numberInt":"0"}},
+//   {"name":"Journal","comment":"atleast 10 mins","category":{"$numberInt":"1"},"desiredFrequency":{"$numberInt":"0"},"createdAt":{"$date":{"$numberLong":"1545071050415"}},"__v":{"$numberInt":"0"}},
+//   {"name":"Contemplate","comment":"for a subject","category":{"$numberInt":"1"},"desiredFrequency":{"$numberInt":"3"},"createdAt":{"$date":{"$numberLong":"1545071063874"}},"__v":{"$numberInt":"0"}},
+//   {"name":"Gratitude","comment":"5 statements","category":{"$numberInt":"1"},"desiredFrequency":{"$numberInt":"0"},"createdAt":{"$date":{"$numberLong":"1545071084484"}},"__v":{"$numberInt":"0"}},
+//   {"name":"Review goals","comment":"Twice a day","category":{"$numberInt":"1"},"desiredFrequency":{"$numberInt":"0"},"createdAt":{"$date":{"$numberLong":"1545071194868"}},"__v":{"$numberInt":"0"}},
+//   {"name":"No sugar","comment":"Natural sugars are allowed like from fruits","category":{"$numberInt":"2"},"desiredFrequency":{"$numberInt":"0"},"createdAt":{"$date":{"$numberLong":"1545071239810"}},"__v":{"$numberInt":"0"}},
+//   {"name":"No prom","comment":"not even glimps","category":{"$numberInt":"4"},"desiredFrequency":{"$numberInt":"0"},"createdAt":{"$date":{"$numberLong":"1545071252548"}},"__v":{"$numberInt":"0"}},
+//   {"name":"No salty junk","comment":"Like chips and fried stuff","category":{"$numberInt":"2"},"desiredFrequency":{"$numberInt":"0"},"createdAt":{"$date":{"$numberLong":"1545071265542"}},"__v":{"$numberInt":"0"}},
+//   {"name":"Approach girls","comment":"for now 1 girl a week is cool","category":{"$numberInt":"4"},"desiredFrequency":{"$numberInt":"3"},"createdAt":{"$date":{"$numberLong":"1545071361331"}},"__v":{"$numberInt":"0"}},
+//   {"name":"In bed before 00:00","comment":"go early for now 00:00 while the kuzs are here","category":{"$numberInt":"2"},"desiredFrequency":{"$numberInt":"0"},"createdAt":{"$date":{"$numberLong":"1545071517848"}},"__v":{"$numberInt":"0"}},
+//   {"name":"10 ideas ","comment":"","category":{"$numberInt":"1"},"desiredFrequency":{"$numberInt":"0"},"createdAt":{"$date":{"$numberLong":"1545073011567"}},"__v":{"$numberInt":"0"}},
+//   {"name":"Logged in","comment":"","category":{"$numberInt":"1"},"desiredFrequency":{"$numberInt":"0"},"createdAt":{"$date":{"$numberLong":"1546006334542"}},"__v":{"$numberInt":"0"}},
+//   {"name":"dw read","comment":"prepare for license exam for dmw","category":{"$numberInt":"0"},"desiredFrequency":{"$numberInt":"0"},"createdAt":{"$date":{"$numberLong":"1564603312547"}},"__v":{"$numberInt":"0"}},
+//   {"name":"Cold shower","comment":"Not warm but cold water","category":{"$numberInt":"2"},"desiredFrequency":{"$numberInt":"0"},"createdAt":{"$date":{"$numberLong":"1565032505808"}},"__v":{"$numberInt":"0"}},
+//   {"name":"No social scroll","comment":"No scrolling in social media messages are allowed","category":{"$numberInt":"1"},"desiredFrequency":{"$numberInt":"0"},"createdAt":{"$date":{"$numberLong":"1565032533232"}},"__v":{"$numberInt":"0"}},
+//   {"name":"Machine Learning","comment":"Small progress is sufficent for now","category":{"$numberInt":"0"},"desiredFrequency":{"$numberInt":"0"},"createdAt":{"$date":{"$numberLong":"1570478397082"}},"__v":{"$numberInt":"0"}}
+  
+// ];
+// asd = JSON.parse(asd);
+// const Habit = require('./api/models/habit');
+// Habit.collection.insertMany(asd, function onInsert(err, docs) {
+//   if (err) {
+//       console.log(err);
+//   } else {
+//       console.info('%d potatoes were successfully stored.', docs.length);
+//   }
+// });
+
 app.use(morgan('dev'));
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(bodyParser.json());
@@ -38,7 +75,7 @@ app.use(bodyParser.json());
 app.use((req, res, next) => {
     res.header('Access-Control-Allow-Origin', '*');
     res.header('Access-Control-Allow-Headers', 
-    "Origin, X-Requested-With, Content-Type, Accept, Authorization");
+    'Origin, X-Requested-With, Content-Type, Accept, Authorization');
     if(req.method =='OPTIONS'){
         res.header('Access-Control-Allow-Methods', 'PUT, POST, PATCH, DELETE, GET');
         return res.status(200).json({});
