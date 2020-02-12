@@ -21,6 +21,7 @@ router.get('/',  (req, res, next) => {
                     comment: doc.comment,
                     category: doc.category,
                     desiredFrequency: doc.desiredFrequency,
+                    reward: doc.reward,
                     createdAt: doc.createdAt,
                     request: {
                         type: 'GET',
