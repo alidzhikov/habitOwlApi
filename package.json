@@ -18,7 +18,7 @@
     "bcrypt": "^2.0.1",
     "body-parser": "^1.18.3",
     "express": "^4.16.4",
-    "jsonwebtoken": "^8.4.0",
+    "jsonwebtoken": "^9.0.0",
     "mongoose": "^5.3.14",
     "morgan": "^1.9.1"
   },
