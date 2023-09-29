@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const entryController = require('../controllers/entry');
+const entryController = require('../controllers/Entry');
 
 router.get('/', entryController.getEntries);
 
