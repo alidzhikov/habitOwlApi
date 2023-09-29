@@ -18,8 +18,8 @@ const options = {
   }
 
 const connectWithRetry = () => {
-  console.log('MongoDB connection with retry')//              EGVdTmvU1JgnJtoS 	
-  mongoose.connect('mongodb+srv://admin:' + process.env.MONGODB_PASS + '@howlcluster0.9efltcs.mongodb.net/?retryWrites=true&w=majority', { useNewUrlParser: true })
+  console.log('MongoDB connection with retry ' + process.env.MONGODB_PASS )//              EGVdTmvU1JgnJtoS 	
+  mongoose.connect('mongodb+srv://admin:lQ6Uv2tg7dSoLPea@howlcluster0.9efltcs.mongodb.net/?retryWrites=true&w=majority', { useNewUrlParser: true })
   .then(()=>{
     console.log('MongoDB is connected');
 
