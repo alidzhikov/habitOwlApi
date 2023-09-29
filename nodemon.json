@@ -1,6 +1,6 @@
 {
     "env": {
-        "MONGO_ATLAS_PW": "CTdYB4jqX6uovW7O",
+        "MONGODB_PASS": "lQ6Uv2tg7dSoLPea",
         "JWT_KEY": "I have so much money i dont know what to do with them"
     }
 }

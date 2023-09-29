@@ -1,0 +1,1 @@
+export const MONGODB_PASS = 'lQ6Uv2tg7dSoLPea';

@@ -1,13 +1,12 @@
 const express = require('express');
 const app = express();
 const morgan = require('morgan');
-const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 
 const habitRoutes = require('./api/routes/habits');
-const actDateRoutes = require('./api/routes/acts');
+const entryRoutes = require('./api/routes/entry');
 const userRoutes = require('./api/routes/users');
-
+// const env = require('./api/env.js');
 
 const options = {
     autoIndex: false, // Don't build indexes
@@ -20,7 +19,7 @@ const options = {
 
 const connectWithRetry = () => {
   console.log('MongoDB connection with retry')//              EGVdTmvU1JgnJtoS 	
-  mongoose.connect('mongodb://localhost:27017/howl', { useNewUrlParser: true })
+  mongoose.connect('mongodb+srv://admin:' + process.env.MONGODB_PASS + '@howlcluster0.9efltcs.mongodb.net/?retryWrites=true&w=majority', { useNewUrlParser: true })
   .then(()=>{
     console.log('MongoDB is connected');
 
@@ -71,8 +70,8 @@ connectWithRetry();
 // });
 
 app.use(morgan('dev'));
-app.use(bodyParser.urlencoded({extended: false}));
-app.use(bodyParser.json());
+app.use(express.urlencoded());
+app.use(express.json());
 
 app.use((req, res, next) => {
     res.header('Access-Control-Allow-Origin', '*');
@@ -86,7 +85,7 @@ app.use((req, res, next) => {
 });
 
 app.use('/habits', habitRoutes);
-app.use('/acts', actDateRoutes);
+app.use('/entry', entryRoutes);
 app.use('/user', userRoutes);
 
 app.use((req, res, next) => {
