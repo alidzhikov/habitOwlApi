@@ -28,7 +28,6 @@ exports.getEntries = (req, res, next) => {
 };
 
 exports.saveEntry = (req, res, next) => {
-    console.log(req.body);
     const newEntry = new Entry({
         userId: req.body.userId || 1,
         habitId: req.body.habitId,
@@ -36,18 +35,6 @@ exports.saveEntry = (req, res, next) => {
         date: req.body.date,
         createdDate: req.body.createdDate
     });
-    var sj = new Date();
-    console.log('===================== DATE now ');
-    console.log(sj.toISOString());
-    console.log(sj.toString());
-    console.log(sj.toLocaleString());
-    console.log(sj.toUTCString());
-    console.log('===================== req.body.date');
-    var sj = new Date(req.body.date);
-    console.log(sj.toISOString());
-    console.log(sj.toString());
-    console.log(sj.toLocaleString());
-    console.log(sj.toUTCString());
     newEntry
         .save()
         .then(entry => {
@@ -71,4 +58,52 @@ exports.saveEntry = (req, res, next) => {
             console.log(err);
             next(err);
         });
+};
+
+exports.editEntry = (req, res, next) => {
+    console.log(req.body);
+    const entryToEditId = req.params.entryId;
+    let entryToEdit = Entry.findById(entryToEditId);
+    const performance = req.body.performance;
+    entryToEdit.then(entry => {
+        console.log(JSON.stringify(entry));
+        errorHelper.isItemFound(entry, 'entry');
+        entry.performance = performance;
+        return entry.save();
+    })
+    .then(result => {
+        res.status(200).json({ message: 'Product updated!', entry: result });
+    })
+    .catch(err => {
+        if (!err.statusCode) {
+            err.statusCode = 500;
+        }
+        next(err);
+    });
+};
+
+exports.getEntryByDate = (req, res, next) => {
+    const entryToFindDate = new Date(req.params.entryDate);
+    const entryToFindDateEndDay = new Date(entryToFindDate.getTime());
+    entryToFindDate.setUTCHours(0, 0, 0, 0);
+    entryToFindDateEndDay.setUTCHours(23, 59, 59, 999);
+    Entry.find({
+        date: {
+            $gte: entryToFindDate,
+            $lt: entryToFindDateEndDay
+        }
+    })
+    .then(entry => {
+        console.log(entry);
+        if (entry && entry.length) {
+            res.status(200).json({ message: 'Entry found!', entry: entry });
+        } else {
+            res.status(200).json({ message: 'No entry found!', entry: null});
+        }
+    }).catch(err => {
+        if (!err.statusCode) {
+            err.statusCode = 500;
+        }
+        next(err);
+    });
 };

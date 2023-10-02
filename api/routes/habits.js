@@ -6,28 +6,23 @@ const errorHelper = require('../validation/error');
 const Habit = require('../models/habit');
 const Speed = require('../models/speed');
 
-router.get('/',  (req, res, next) => {
-    var twoDaysAgoDate = new Date();
-  
-    twoDaysAgoDate.setDate(twoDaysAgoDate.getDate() - 7);
-    // console.log(d.toString());
-   // console.log(twoDaysAgoDate.getDate())
+var twoDaysAgoDate = new Date();
+twoDaysAgoDate.setDate(twoDaysAgoDate.getDate() - 7);
+const entriesPopulateOptions = {
+    path: 'entries', select: '_id performance date createdDate', 
+    match: {
+        date: { $gte: twoDaysAgoDate }
+    }, 
+    options: {sort: '-date'}
+};
 
+router.get('/',  (req, res, next) => {
     Habit.find()
         .select('_id userId title comment category measure createdDate speeds entries')
         .populate('speeds')
-        .populate({
-            path: 'entries', select: '_id performance date createdDate', 
-            match: {
-                date: { $gte: twoDaysAgoDate }
-            }, 
-            options: {sort: '-date'}
-        })
+        .populate(entriesPopulateOptions)
     .exec()
     .then(docs => {
-        console.log('-----------');
-        console.log(docs);
-        console.log('-----------');
         const response = {
             count: docs.length,
             habits: docs.map(doc => {
@@ -106,7 +101,7 @@ router.get('/:habitId', (req, res, next) => {
     const id = req.params.habitId;
     Habit.findById(id)
         .populate('speeds')
-        .populate('entries')
+        .populate(entriesPopulateOptions)
         .exec()
         .then(doc => {
             console.log(doc);
