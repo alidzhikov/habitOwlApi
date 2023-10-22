@@ -40,5 +40,65 @@ exports.signUp = function (req, res, next) {
                 });
             }
         });
+}
 
+exports.signIn = (req, res, next) => {
+    console.log(req.body.email);
+    User.find({ email: req.body.email })
+        .exec()
+        .then(user => {
+            if (user.length < 1) {
+                return res.status(401).json({
+                    message: 'Auth failed'
+                });
+            }
+            bcrypt.compare(req.body.password, user[0].password, (err, result) => {
+                if (err) {
+                    return res.status(401).json({
+                        message: 'Auth failed'
+                    });
+                }
+                if (result) {
+                    const jwtSecret = process.env.JWT_KEY;
+                    const token = jwt.sign({
+                        email: user[0].email,
+                        userId: user[0]._id
+                    }, jwtSecret, {
+                        expiresIn: "1h"
+                    });
+                    return res.status(201).json({
+                        message: 'Auth successful',
+                        token: token,
+                        user: user[0]
+                    });
+                }
+                res.status(401).json({
+                    message: 'Auth failed'
+                })
+            });
+        })
+        .catch(err => {
+            console.log(err);
+            res.status(500).json({
+                error: err
+            });
+        });
+};
+
+exports.getUserByToken = function (req, res, next) {
+    console.log(req.userData);
+    const userId = req.userData && req.userData.userId;
+    console.log(userId);
+    if (!userId) {
+        //modify later
+        return res.status(404).json({
+            error: 'No user found'
+        });
+    }
+    User.findById(userId)
+        .exec()
+        .then(user => {
+            res.status(200).json(user);
+        })
+        .catch(err => {res.status(404)}  );
 }

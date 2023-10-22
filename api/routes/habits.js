@@ -5,47 +5,14 @@ const checkAuth = require('../middleware/check-auth');
 const errorHelper = require('../validation/error');
 const Habit = require('../models/habit');
 const Speed = require('../models/speed');
+const HabitController = require('../controllers/Habit');
 
-var twoDaysAgoDate = new Date();
-twoDaysAgoDate.setDate(twoDaysAgoDate.getDate() - 7);
 const entriesPopulateOptions = {
     path: 'entries', select: '_id performance date createdDate', 
-    match: {
-        date: { $gte: twoDaysAgoDate }
-    }, 
     options: {sort: '-date'}
 };
 
-router.get('/',  (req, res, next) => {
-    Habit.find()
-        .select('_id userId title comment category measure createdDate speeds entries')
-        .populate('speeds')
-        .populate(entriesPopulateOptions)
-    .exec()
-    .then(docs => {
-        const response = {
-            count: docs.length,
-            habits: docs.map(doc => {
-                return {
-                    _id: doc._id,
-                    userId: doc.userId,
-                    title: doc.title,
-                    comment: doc.comment,
-                    category: doc.category,
-                    measure: doc.measure,
-                    speeds: doc.speeds,
-                    entries: doc.entries,
-                    createdDate: doc.createdDate
-                }
-            })
-        };
-        res.status(200).json(response);
-    })
-    .catch(err => {
-        console.log(err);
-        res.status(500).json({error: err});
-    });
-});
+router.get('/', checkAuth, HabitController.getHabits);
 
 router.post('/', (req, res, next) => {//checkAuth
     console.log('CREATING A HABIT POST REQUEST-------------------------')

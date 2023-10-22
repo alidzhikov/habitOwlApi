@@ -7,7 +7,9 @@ const habitRoutes = require('./api/routes/habits');
 const entryRoutes = require('./api/routes/entry');
 const userRoutes = require('./api/routes/users');
 // const env = require('./api/env.js');
+const localDb='mongodb://127.0.0.1:27017/?directConnection=true&serverSelectionTimeoutMS=2000&appName=mongosh+2.0.1';
 
+const remoteDb='mongodb+srv://admin:lQ6Uv2tg7dSoLPea@howlcluster0.9efltcs.mongodb.net/?retryWrites=true&w=majority';
 const options = {
     autoIndex: false, // Don't build indexes
     reconnectTries: 3, // Retry up to 30 times
@@ -19,7 +21,7 @@ const options = {
 
 const connectWithRetry = () => {
   console.log('MongoDB connection with retry ' + process.env.MONGODB_PASS )//              EGVdTmvU1JgnJtoS 	
-  mongoose.connect('mongodb+srv://admin:lQ6Uv2tg7dSoLPea@howlcluster0.9efltcs.mongodb.net/?retryWrites=true&w=majority', { useNewUrlParser: true })
+  mongoose.connect(remoteDb, { useNewUrlParser: true })
   .then(()=>{
     console.log('MongoDB is connected');
 

@@ -29,7 +29,7 @@ exports.getEntries = (req, res, next) => {
 
 exports.saveEntry = (req, res, next) => {
     const newEntry = new Entry({
-        userId: req.body.userId || 1,
+        userId: req.body.userId,
         habitId: req.body.habitId,
         performance: req.body.performance,
         date: req.body.date,

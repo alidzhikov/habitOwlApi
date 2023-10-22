@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const habitSchema = mongoose.Schema({
     _id: mongoose.Schema.Types.ObjectId,
     title: { type: String, required: true},
-    userId: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+    userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
     comment: { type: String, required: false},
     category: { type: Number, required: true},
     measure: { type: Number, required: true},
