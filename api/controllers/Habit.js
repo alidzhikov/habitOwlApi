@@ -1,5 +1,9 @@
 const Habit = require('../models/habit');
-//const mongoose = require('mongoose');
+const Speed = require('../models/speed');
+const helpers = require('../common/helpers');
+const mongoose = require('mongoose');
+const entryQueries = require('../queries/entry');
+const errorHelper = require('../validation/error');
 
 var twoDaysAgoDate = new Date();
 twoDaysAgoDate.setDate(twoDaysAgoDate.getDate() - 7);
@@ -13,6 +17,7 @@ const entriesPopulateOptions = {
 
 exports.getHabits = (req, res, next) => {
     console.log(req.userData.userId);
+    console.log('___GET HABITS _____')
     Habit.find({'userId': req.userData.userId})
         .select('_id userId title comment category measure createdDate speeds entries')
         .populate('speeds')
@@ -138,9 +143,8 @@ exports.createHabit = (req, res, next) => {
 // };
 
 exports.updateHabit = (req, res, next) => {
-    console.log(req.body);
     const habitId = req.params.habitId;
-    errorHelper.validationCheck(req);
+    //errorHelper.validationCheck(req);
     const title = req.body.title;
     const comment = req.body.comment;
     const category = req.body.category;
@@ -153,8 +157,32 @@ exports.updateHabit = (req, res, next) => {
             habit.category = category;
             return habit.save();
         })
-        .then(result => {
-            res.status(200).json({ message: 'Habit updated!', habit: result });
+        .then(habit => {
+            let updatedSpeed;
+            req.body.speeds.map(speedModified => {
+                entryQueries.getEntriesBySpeedId(speedModified.id)
+                    .then(entries => {
+                        console.log('ntries')
+                        console.log(entries)
+                        // later disable the fields if the speed has entries to it or maybe give a choice to remove all the entries if modification is required
+                        const speedToSave = Speed.findById(speedModified.id)
+                            .then(speed => {
+                                let skipList = [];
+                                if (!entries.length) {
+                                    skipList.push('startDate');
+                                    skipList.push('endDate');
+                                }
+                                helpers.objectAssignIfExists(speed, speedModified, skipList);
+
+                                updatedSpeed = speed.save();
+                                return updatedSpeed;
+                            }).then(speedRes => {
+                                console.log(speedRes);
+
+                                res.status(200).json({ message: 'Habit updated!', editedHabit: speedRes });
+                            });
+                    });
+            });
         })
         .catch(err => {
             if (!err.statusCode) {
