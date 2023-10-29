@@ -4,15 +4,27 @@ const helpers = require('../common/helpers');
 const mongoose = require('mongoose');
 const entryQueries = require('../queries/entry');
 const errorHelper = require('../validation/error');
+const speedValidation = require('../validation/speed');
+const speedStatus = require('../models/speedStatus');
 
+//extract these to separate file 
 var twoDaysAgoDate = new Date();
 twoDaysAgoDate.setDate(twoDaysAgoDate.getDate() - 7);
 const entriesPopulateOptions = {
-    path: 'entries', select: '_id performance date createdDate', 
+    path: 'entries', select: '_id speedId performance date createdDate', 
     match: {
         date: { $gte: twoDaysAgoDate }
     }, 
     options: {sort: '-date'}
+};
+const entriesPopulateOptionById = {
+    path: 'entries', select: '_id speedId performance date createdDat',
+    options: {sort: '-date'}
+};
+
+const speedsPopulateOptions = {
+    path: 'speeds',
+    options: {sort: '-startDate'}
 };
 
 exports.getHabits = (req, res, next) => {
@@ -51,8 +63,8 @@ exports.getHabits = (req, res, next) => {
 exports.getHabitById = (req, res, next) => {
     const id = req.params.habitId;
     Habit.findById(id)
-        .populate('speeds')
-        .populate(entriesPopulateOptions)
+        .populate(speedsPopulateOptions)
+        .populate(entriesPopulateOptionById)
         .exec()
         .then(doc => {
             console.log(doc);
@@ -83,7 +95,7 @@ exports.createHabit = (req, res, next) => {
             priority: speed.priority,
             habitTimeFrame: speed.habitTimeFrame,
             repetitions: speed.repetitions,
-            isActive: true
+            status: speedStatus.active
         });
     });
     newSpeed.save()
@@ -99,48 +111,23 @@ exports.createHabit = (req, res, next) => {
                 entries: req.body.entries,
                 createdDate: req.body.createdDate,
             });
-            habit.save().then(r => {
-                console.log(res);
-                res.status(200).json({
-                    message: 'Handling POST requests to /habits ' + habit.id,
-                    createdHabitId: habit._id 
+            habit.save()
+                .then(r => {
+                    console.log(res);
+                    res.status(200).json({
+                        message: 'Handling POST requests to /habits ' + habit.id,
+                        createdHabitId: habit._id
+                    });
+                })
+                .catch(err => {
+                    console.log(err);
+                    res.status(500).json({ error: err });
                 });
-            })
-            .catch(err=> { 
-                console.log(err);
-                res.status(500).json({error: err});
-            });   
-    } );
+        }).catch(err => {
+            console.log(err);
+            res.status(500).json({ error: err });
+        });
 };
-
-// exports.editHabit = (req, res, next) => {
-   
-//     console.log(req.body);
-//     const habitToEditId = req.params.habitId;
-//     let habitToEdit = Habit.findById(habitToEditId);
-
-//     const title = req.body.title;
-//     const comment = req.body.comment;
-//     const category = req.body.category;
-
-//     habitToEdit.then(habit => {
-//         errorHelper.isItemFound(habit, 'habit');
-//         habit.title = title;
-//         habit.comment = comment;
-//         habit.category = category;
-//         habit.measure = measure;
-//         return entry.save();
-//     })
-//     .then(result => {
-//         res.status(200).json({ message: 'Product updated!', entry: result });
-//     })
-//     .catch(err => {
-//         if (!err.statusCode) {
-//             err.statusCode = 500;
-//         }
-//         next(err);
-//     });
-// };
 
 exports.updateHabit = (req, res, next) => {
     const habitId = req.params.habitId;
@@ -162,13 +149,11 @@ exports.updateHabit = (req, res, next) => {
             req.body.speeds.map(speedModified => {
                 entryQueries.getEntriesBySpeedId(speedModified.id)
                     .then(entries => {
-                        console.log('ntries')
-                        console.log(entries)
                         // later disable the fields if the speed has entries to it or maybe give a choice to remove all the entries if modification is required
                         const speedToSave = Speed.findById(speedModified.id)
                             .then(speed => {
                                 let skipList = [];
-                                if (!entries.length) {
+                                if (entries.length > 0) {
                                     skipList.push('startDate');
                                     skipList.push('endDate');
                                 }
@@ -188,6 +173,53 @@ exports.updateHabit = (req, res, next) => {
             if (!err.statusCode) {
                 err.statusCode = 500;
             }
+            next(err);
+        });
+};
+
+exports.addSpeedToHabit = (req, res, next) => {
+    const habitId = req.params.habitId;
+    //errorHelper.validationCheck(req);
+
+    Habit.findById(habitId)
+        .populate('speeds')
+        .exec()
+        .then(habit => {
+            errorHelper.isItemFound(habit, 'habit');
+            let newSpeed = speedValidation.validateSpeedPeriod(habit, req.body.speeds);
+
+            console.log(newSpeed);
+            if (newSpeed) {
+                let createdSpeed = new Speed({
+                    _id: new mongoose.Types.ObjectId(),
+                    userId: newSpeed.userId,
+                    habitId: habit._id,
+                    goalId: null,
+                    createdDate: newSpeed.createdDate,
+                    startDate: newSpeed.startDate,
+                    endDate: newSpeed.endDate,
+                    priority: newSpeed.priority,
+                    habitTimeFrame: newSpeed.habitTimeFrame,
+                    repetitions: newSpeed.repetitions,
+                    status: newSpeed.status
+                });
+                return createdSpeed.save()
+                    .then(createdSpeed => {
+                        habit.speeds.push(createdSpeed._id);
+                        habit.save().then(updatedHabit => {
+                            res.status(200).json({ message: 'Speed updated!' });
+                        });
+                    }).catch(err => {
+                        console.log(err);
+                        res.status(500).json({ error: err });
+                        next(err);
+                    });
+            } else {
+                res.status(200).json({ message: 'Speed not created!' });
+            }
+        }).catch(err => {
+            console.log(err);
+            res.status(500).json({ error: err });
             next(err);
         });
 };

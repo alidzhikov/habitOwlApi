@@ -1,6 +1,5 @@
 const mongoose = require('mongoose');
 
-const statusStates = ['Active', 'Finished', 'Archived', 'Upcoming'];
 const speedSchema = mongoose.Schema({
     _id: mongoose.Schema.Types.ObjectId,
     userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },

@@ -11,6 +11,8 @@ router.get('/:habitId', checkAuth, HabitController.getHabitById);
 
 router.patch('/update/:habitId', checkAuth, HabitController.updateHabit);
 
+router.patch('/speed/:habitId', checkAuth, HabitController.addSpeedToHabit);
+
 router.delete('/:habitId', checkAuth, HabitController.deleteHabit);
 
 module.exports = router;

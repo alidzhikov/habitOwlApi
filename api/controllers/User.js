@@ -60,6 +60,7 @@ exports.signIn = (req, res, next) => {
                 }
                 if (result) {
                     const jwtSecret = process.env.JWT_KEY;
+                    console.log(JSON.stringify(user))
                     const token = jwt.sign({
                         email: user[0].email,
                         userId: user[0]._id
