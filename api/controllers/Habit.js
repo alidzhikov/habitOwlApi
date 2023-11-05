@@ -11,14 +11,14 @@ const speedStatus = require('../models/speedStatus');
 var twoDaysAgoDate = new Date();
 twoDaysAgoDate.setDate(twoDaysAgoDate.getDate() - 7);
 const entriesPopulateOptions = {
-    path: 'entries', select: '_id speedId performance date createdDate', 
+    path: 'entries', select: '_id speedId habitId performance date createdDate', 
     match: {
         date: { $gte: twoDaysAgoDate }
     }, 
     options: {sort: '-date'}
 };
 const entriesPopulateOptionById = {
-    path: 'entries', select: '_id speedId performance date createdDat',
+    path: 'entries', select: '_id speedId habitId performance date createdDate',
     options: {sort: '-date'}
 };
 
