@@ -1,0 +1,18 @@
+const express = require('express');
+const router = express.Router();
+const checkAuth = require('../middleware/check-auth');
+const GoalController = require('../controllers/Goal');
+
+router.get('/all/', checkAuth, GoalController.getGoals);
+
+router.post('/', checkAuth, GoalController.createGoal);
+
+// router.get('/:goalId', checkAuth, GoalController.getGoalById);
+
+// router.patch('/update/:goalId', checkAuth, GoalController.updateGoal);
+
+// router.patch('/speed/:goalId', checkAuth, GoalController.addSpeedToGoal);
+
+router.delete('/:goalId', checkAuth, GoalController.deleteGoal);
+
+module.exports = router;
