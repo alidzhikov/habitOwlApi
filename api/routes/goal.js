@@ -5,7 +5,9 @@ const GoalController = require('../controllers/Goal');
 
 router.get('/all/', checkAuth, GoalController.getGoals);
 
-router.post('/', checkAuth, GoalController.createGoal);
+router.post('/:index', checkAuth, GoalController.createGoalOrSubgoal);
+
+router.patch('/milestones/:index', checkAuth, GoalController.createMilestone);
 
 // router.get('/:goalId', checkAuth, GoalController.getGoalById);
 
