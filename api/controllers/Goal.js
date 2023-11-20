@@ -1,4 +1,5 @@
 const Goal = require('../models/goal');
+const Habit = require('../models/habit');
 const Milestone = require('../models/milestone');
 const mongoose = require('mongoose');
 const errorHelper = require('../validation/error');
@@ -133,18 +134,32 @@ exports.createMilestone = (req, res, next) => {
         });
 };
 
+exports.addHabitToGoal = (req, res, next) => {
+    const goalId = req.params.goalId;
+    let habitId = req.body.id;
+    if (!habitId) {
+        habitId = new mongoose.Types.ObjectId();
+        const newHabit = new Habit({
+            _id: habitId
+        });
+        //etc
+    } else {
+        Goal.findById(goalId).then(g => {
+            g.habits.push(habitId);
+            g.save()
+                .then(savedG => {res.status(200).json({
+                    message: 'Habit added to goal with id: ' + g.id,
+                })}).catch(err => {
+                    res.status(500).json({ error: err });
+                });
+        }).catch(err => {
+            res.status(500).json({ error: err });
+        });
+    }
+};
+
 exports.deleteGoal = (req, res, next) => {
     const id = req.params.goalId;
-    let i = 1;
-    let milestoneToDelete = [];
-    // while (req.query['goalId' + i]) {
-    //     milestoneToDelete.push(req.query['goalId' + i]);
-    //     i++;
-    // }
-    // Goal.deleteMany({ '_id': { $in: milestoneToDelete } })
-    // .then(r => console.log('Milestones deleted ' + milestoneToDelete)).catch(e => console.log(e));
-    // Goal.deleteMany({ '_id': { $in: milestoneToDelete } })
-    // .then(r => console.log('Milestones deleted ' + milestoneToDelete)).catch(e => console.log(e));
     console.log('Deleting goal ' + id);
     Goal.deleteOne({ _id: id })
         .exec()

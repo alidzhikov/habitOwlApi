@@ -9,6 +9,8 @@ router.post('/:index', checkAuth, GoalController.createGoalOrSubgoal);
 
 router.patch('/milestones/:index', checkAuth, GoalController.createMilestone);
 
+router.patch('/habits/:goalId', checkAuth, GoalController.addHabitToGoal);
+
 // router.get('/:goalId', checkAuth, GoalController.getGoalById);
 
 // router.patch('/update/:goalId', checkAuth, GoalController.updateGoal);

@@ -20,8 +20,9 @@ const goalSchema = mongoose.Schema({
     habits: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Habit' }],
 });
 var autoPopulateMilestones = function (next) {
-    this.populate({path: 'milestones', model: 'Milestone'});
-    this.populate({path: 'subGoals', model: 'Goal'});
+    this.populate({ path: 'milestones', model: 'Milestone' });
+    this.populate({ path: 'subGoals', model: 'Goal' });
+    this.populate({ path: 'habits', model: 'Habit' });
     next();
 };
 var deleteNestedGoals = function(next) {
