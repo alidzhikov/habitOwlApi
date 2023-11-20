@@ -17,6 +17,8 @@ router.patch('/habits/:goalId', checkAuth, GoalController.addHabitToGoal);
 
 // router.patch('/speed/:goalId', checkAuth, GoalController.addSpeedToGoal);
 
+router.delete('/:goalId/habits/:habitId', checkAuth, GoalController.removeHabitFromGoal);
+
 router.delete('/:goalId', checkAuth, GoalController.deleteGoal);
 
 module.exports = router;

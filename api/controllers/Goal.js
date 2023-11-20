@@ -158,6 +158,32 @@ exports.addHabitToGoal = (req, res, next) => {
     }
 };
 
+exports.removeHabitFromGoal = (req, res, next) => {
+    const goalId = req.params.goalId;
+    const habitId = req.params.habitId;
+    console.log('Deleting habit ' + habitId + 'goal ' + goalId);
+    if (goalId && habitId) {
+        Goal.findById(goalId).then(g => {
+            const indexOfInterest = g.habits.indexOf(habitId);
+            if (indexOfInterest > -1) {
+                g.habits.splice(indexOfInterest, 1);
+                g.save()
+                .then(savedG => {
+                    res.status(200).json({
+                        message: 'Habit with ID ' + habitId + ' was deleted from goal with id: ' + goalId,
+                    })
+                }).catch(err => {
+                    res.status(500).json({ error: err });
+                });
+            } else {
+                res.status(500).json({ error: 'No habit with this id was found broski' });
+            }
+        }).catch(err => {
+            res.status(500).json({ error: err });
+        });
+    }
+};
+
 exports.deleteGoal = (req, res, next) => {
     const id = req.params.goalId;
     console.log('Deleting goal ' + id);
