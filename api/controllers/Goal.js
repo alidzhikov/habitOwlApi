@@ -5,7 +5,7 @@ const mongoose = require('mongoose');
 const errorHelper = require('../validation/error');
 
 exports.getGoals = (req, res, next) => {
-    Goal.find({'userId': req.userData.userId, 'parentId': null })
+    Goal.find({'userId': req.userData.userId, 'parentGoalId': null })
     .exec()
     .then(docs => {
         res.status(200).json({goals: docs});
