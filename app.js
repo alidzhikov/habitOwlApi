@@ -7,6 +7,8 @@ const habitRoutes = require('./api/routes/habits');
 const entryRoutes = require('./api/routes/entry');
 const userRoutes = require('./api/routes/users');
 const goalRoutes = require('./api/routes/goal');
+const speedRoutes = require('./api/routes/speed');
+
 // const env = require('./api/env.js');
 const localDb='mongodb://127.0.0.1:27017/?directConnection=true&serverSelectionTimeoutMS=2000&appName=mongosh+2.0.1';
 
@@ -91,6 +93,7 @@ app.use('/habits', habitRoutes);
 app.use('/entry', entryRoutes);
 app.use('/user', userRoutes);
 app.use('/goals', goalRoutes);
+app.use('/speeds', speedRoutes);
 
 app.use((req, res, next) => {
     const error = new Error('Not found');
@@ -103,7 +106,8 @@ app.use((error, req, res, next) => {
     res.json({
         error: {
             message: error.message
-        }
+        },
+        success: false
     });
 });
 module.exports = app;

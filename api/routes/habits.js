@@ -13,6 +13,8 @@ router.patch('/update/:habitId', checkAuth, HabitController.updateHabit);
 
 router.patch('/speed/:habitId', checkAuth, HabitController.addSpeedToHabit);
 
+router.put('/speed/:speedId', checkAuth, HabitController.editHabitSpeed);
+
 router.delete('/:habitId', checkAuth, HabitController.deleteHabit);
 
 module.exports = router;

@@ -31,7 +31,7 @@ exports.getHabits = (req, res, next) => {
     console.log(req.userData.userId);
     console.log('___GET HABITS _____')
     Habit.find({'userId': req.userData.userId})
-        .select('_id userId title comment category measure createdDate speeds entries')
+        .select('_id userId goals title comment category measure createdDate speeds entries')
         .populate('speeds')
         .populate(entriesPopulateOptions)
     .exec()
@@ -224,8 +224,44 @@ exports.addSpeedToHabit = (req, res, next) => {
         });
 };
 
+
+exports.editHabitSpeed = (req, res, next) => {
+    const speedId = req.params.speedId;
+    const goals = req.body.goals;
+    const habitTimeframe = req.body.habitTimeframe;
+    const repetitions = req.body.repetitions;
+    const priority = req.body.priority;
+    const status = req.body.status;
+    const startDate = req.body.startDate;
+    const endDate = req.body.endDate;
+    const speedToEdit = Speed.findById(speedId);
+    speedToEdit.then(speed => {
+        console.log(JSON.stringify(speed));
+        errorHelper.isItemFound(speed, 'speed');
+        speed.goals = goals;
+        speed.habitTimeframe = habitTimeframe;
+        speed.repetitions = repetitions;
+        speed.priority = priority;
+        speed.status = status;
+        speed.startDate = startDate;
+        speed.endDate = endDate;
+        return speed.save();
+    })
+    .then(result => {
+        res.status(200).json({ message: 'Speed updated!', success: true, result: result });
+    })
+    .catch(err => {
+        if (!err.statusCode) {
+            err.statusCode = 500;
+        }
+        next(err);
+    });
+};
+
 exports.deleteHabit = (req, res, next) => {
     console.log(req.params);
+
+    // add a pre hook to delete the speeds and the habit id that is in the goal but why delete a habit in any case? mistakely typed maybe
     const id = req.params.habitId;
     let i = 1;
     let speedsToDelete = [];
