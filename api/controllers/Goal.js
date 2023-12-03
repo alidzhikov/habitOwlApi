@@ -44,6 +44,7 @@ exports.createGoalOrSubgoal = (req, res, next) => {
         description: req.body.description,
         category: req.body.category,
         measure: req.body.measure,
+        engine: req.body.engine,
         target: req.body.target,
         priority: req.body.priority,
         createdDate: req.body.createdDate,

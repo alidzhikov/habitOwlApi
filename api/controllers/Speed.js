@@ -1,10 +1,6 @@
 const Habit = require('../models/habit');
 const Speed = require('../models/speed');
-const helpers = require('../common/helpers');
 const mongoose = require('mongoose');
-const speedValidation = require('../validation/speed');
-const speedStatus = require('../models/speedStatus');
-const errorHelper = require('../validation/error');
 
 exports.getHabitSpeeds = (req, res, next) => {
     const speedIdParams = req.params.speedIdParams;

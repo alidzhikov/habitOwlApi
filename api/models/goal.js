@@ -9,7 +9,8 @@ const goalSchema = mongoose.Schema({
     title: { type: String, required: true },
     description: { type: String, required: false },
     category: { type: Number, required: true },
-    measure: { type: Number, required: true },
+    measure: { type: Number, required: false }, // reconsider
+    engine: { type: Number, required: false },//later required true
     target: { type: Number, required: true },
     priority: { type: Number, required: true },
     createdDate: { type: Date, required: true },
@@ -19,6 +20,9 @@ const goalSchema = mongoose.Schema({
     subGoals: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Goal' }],
     habits: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Habit' }],
 });
+
+/// goal is to read books 
+// 
 var autoPopulateMilestones = function (next) {
     this.populate({ path: 'milestones', model: 'Milestone' });
     this.populate({ path: 'subGoals', model: 'Goal' });

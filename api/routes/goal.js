@@ -3,7 +3,9 @@ const router = express.Router();
 const checkAuth = require('../middleware/check-auth');
 const GoalController = require('../controllers/Goal');
 
-router.get('/all/', checkAuth, GoalController.getGoals);
+//router.get('/all', checkAuth, GoalController.getAllGoals);
+
+router.get('/', checkAuth, GoalController.getGoals);
 
 router.post('/:index', checkAuth, GoalController.createGoalOrSubgoal);
 

@@ -5,7 +5,7 @@ const mongoose = require('mongoose');
 const entryQueries = require('../queries/entry');
 const errorHelper = require('../validation/error');
 const speedValidation = require('../validation/speed');
-const speedStatus = require('../models/speedStatus');
+const speedStatus = require('../models/mappings/speedStatus');
 
 //extract these to separate file 
 var twoDaysAgoDate = new Date();
@@ -243,6 +243,7 @@ exports.editHabitSpeed = (req, res, next) => {
         speed.repetitions = repetitions;
         speed.priority = priority;
         speed.status = status;
+        // check here if the dates are changed and update the associated entries
         speed.startDate = startDate;
         speed.endDate = endDate;
         return speed.save();
