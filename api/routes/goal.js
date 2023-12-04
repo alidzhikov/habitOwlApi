@@ -15,7 +15,7 @@ router.patch('/habits/:goalId', checkAuth, GoalController.addHabitToGoal);
 
 // router.get('/:goalId', checkAuth, GoalController.getGoalById);
 
-// router.patch('/update/:goalId', checkAuth, GoalController.updateGoal);
+router.patch('/update/:goalId', checkAuth, GoalController.updateGoal);
 
 // router.patch('/speed/:goalId', checkAuth, GoalController.addSpeedToGoal);
 

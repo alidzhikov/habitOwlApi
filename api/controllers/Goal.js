@@ -5,15 +5,15 @@ const mongoose = require('mongoose');
 const errorHelper = require('../validation/error');
 
 exports.getGoals = (req, res, next) => {
-    Goal.find({'userId': req.userData.userId, 'parentGoalId': null })
-    .exec()
-    .then(docs => {
-        res.status(200).json({goals: docs});
-    })
-    .catch(err => {
-        console.log(err);
-        res.status(500).json({error: err});
-    });
+    Goal.find({ 'userId': req.userData.userId, 'parentGoalId': null })
+        .exec()
+        .then(docs => {
+            res.status(200).json({ goals: docs });
+        })
+        .catch(err => {
+            console.log(err);
+            res.status(500).json({ error: err });
+        });
 };
 
 exports.getGoalById = (req, res, next) => {
@@ -23,7 +23,7 @@ exports.getGoalById = (req, res, next) => {
         .then(doc => {
             if (doc) {
                 res.status(200).json(doc);
-            } else {    
+            } else {
                 res.status(404).json({ message: 'No hoal found for provided ID.' });
             }
         })
@@ -66,7 +66,7 @@ exports.createGoalOrSubgoal = (req, res, next) => {
             Goal.find({ 'userId': req.userData.userId, '_id': g.parentGoalId })
                 .then((res) => {
                     let parentGoal = res[0];
-                    if ( parentGoal && parentGoal.id) {
+                    if (parentGoal && parentGoal.id) {
                         if (index && index > -1) {
                             parentGoal.subGoals.splice(index + 1, 0, newGoalId);
                         } else {
@@ -81,13 +81,53 @@ exports.createGoalOrSubgoal = (req, res, next) => {
                             subGoalId: subGoal.id
                         });
                     } else {
-                        res.status(500).json({ error: 'Error occured goal or sub Goal failed!'});
+                        res.status(500).json({ error: 'Error occured goal or sub Goal failed!' });
                     }
                 });
         })
         .catch(err => {
             console.log(err);
             res.status(500).json({ error: err });
+        });
+};
+
+exports.updateGoal = (req, res, next) => {
+    const goalId = req.params.goalId;
+    //errorHelper.validationCheck(req);
+    const title = req.body.title;
+    const parentGoalId = req.body.parentGoalId;
+    const description = req.body.description;
+    const category = req.body.category;
+    const measure = req.body.measure;
+    const engine = req.body.engine;
+    const target = req.body.target;
+    const priority = req.body.priority;
+    const completionDate = req.body.completionDate;
+    const endDate = req.body.endDate;
+
+    Goal.findById(goalId)
+        .then(goal => {
+            errorHelper.isItemFound(goal, 'goal');
+            goal.title = title;
+            goal.parentGoalId = parentGoalId;
+            goal.description = description;
+            goal.category = category;
+            goal.measure = measure;
+            goal.engine = engine;
+            goal.target = target;
+            goal.priority = priority;
+            goal.endDate = endDate;
+            goal.completionDate = completionDate;
+
+            goal.save()
+                .then(g => res.status(200).json({ message: 'Goal updated!', success: true, result: g }))
+                .catch(err => {
+                    err.statusCode = 500;
+                    next();
+                });
+        }).catch(err => {
+            err.statusCode = 500;
+            next();
         });
 };
 
@@ -148,9 +188,11 @@ exports.addHabitToGoal = (req, res, next) => {
         Goal.findById(goalId).then(g => {
             g.habits.push(habitId);
             g.save()
-                .then(savedG => {res.status(200).json({
-                    message: 'Habit added to goal with id: ' + g.id,
-                })}).catch(err => {
+                .then(savedG => {
+                    res.status(200).json({
+                        message: 'Habit added to goal with id: ' + g.id,
+                    })
+                }).catch(err => {
                     res.status(500).json({ error: err });
                 });
         }).catch(err => {
@@ -169,13 +211,13 @@ exports.removeHabitFromGoal = (req, res, next) => {
             if (indexOfInterest > -1) {
                 g.habits.splice(indexOfInterest, 1);
                 g.save()
-                .then(savedG => {
-                    res.status(200).json({
-                        message: 'Habit with ID ' + habitId + ' was deleted from goal with id: ' + goalId,
-                    })
-                }).catch(err => {
-                    res.status(500).json({ error: err });
-                });
+                    .then(savedG => {
+                        res.status(200).json({
+                            message: 'Habit with ID ' + habitId + ' was deleted from goal with id: ' + goalId,
+                        })
+                    }).catch(err => {
+                        res.status(500).json({ error: err });
+                    });
             } else {
                 res.status(500).json({ error: 'No habit with this id was found broski' });
             }
