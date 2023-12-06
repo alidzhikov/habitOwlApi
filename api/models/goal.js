@@ -32,17 +32,16 @@ var autoPopulateMilestones = function (next) {
 var deleteNestedGoals = function(next) {
     var id = this.getQuery()['_id'];
     GoalModel.findById(id).then(goal => {
-        GoalModel.findById(goal.parentGoalId).then(pg => {
-            pg.subGoals = pg.subGoals.filter(sgId => sgId.toString() !== id);
-            pg.markModified('subGoals');
-            pg.save().then(res => console.log(res)).catch(err => console.log(err));;
-        })
-        .catch(err => console.log(err));
-
-        // GoalModel.update({ _id: goal.parentGoalId }, { $pull: { subGoal: id } })
-        // .then(res => console.log(res)).catch(err => console.log(err));
-        GoalModel.deleteMany({ '_id': { $in: goal.subGoals.map(s => s._id) } }).then(res => console.log(res)).catch(err => console.log(err));
-        Milestone.deleteMany({ '_id': { $in: goal.milestones.map(m => m._id) } }).then(res => console.log(res)).catch(err => console.log(err));
+        if (goal) {
+            GoalModel.findById(goal.parentGoalId).then(pg => {
+                pg.subGoals = pg.subGoals.filter(sgId => sgId.toString() !== id);
+                pg.markModified('subGoals');
+                pg.save().then(res => console.log(res)).catch(err => console.log(err));;
+            })
+            .catch(err => console.log(err));
+            GoalModel.deleteMany({ '_id': { $in: goal.subGoals.map(s => s._id) } }).then(res => console.log(res)).catch(err => console.log(err));
+            Milestone.deleteMany({ '_id': { $in: goal.milestones.map(m => m._id) } }).then(res => console.log(res)).catch(err => console.log(err));
+        }
         next();
     }).catch(e => {console.log(e); next()});
 };
