@@ -175,6 +175,62 @@ exports.createMilestone = (req, res, next) => {
         });
 };
 
+exports.editMilestone = (req, res, next) => {
+    const milestoneId = req.params.milestoneId;
+    //errorHelper.validationCheck(req);
+    const title = req.body.title;
+    const description = req.body.description;
+    const target = req.body.target;
+    const endDate = req.body.endDate;
+    const completionDate = req.body.completionDate;
+
+    Milestone.findById(milestoneId)
+        .then(milestone => {
+            errorHelper.isItemFound(milestone, 'milestone');
+            milestone.title = title;
+            milestone.description = description;
+            milestone.target = target;
+            milestone.endDate = endDate;
+            milestone.completionDate = completionDate;
+
+            milestone.save()
+                .then(m => res.status(200).json({ message: 'Milestone updated!', success: true, result: m }))
+                .catch(err => {
+                    err.statusCode = 500;
+                    next();
+                });
+        }).catch(err => {
+            err.statusCode = 500;
+            next();
+        });
+};
+
+exports.removeMilestone = (req, res, next) => {
+    const milestoneId = req.params.milestoneId;
+    const goalId = req.params.goalId;
+    console.log('Deleting milestone ' + milestoneId + 'goal ' + goalId);
+    if (goalId && milestoneId) {
+        Goal.findById(goalId).then(g => {
+            const indexOfInterest = g.milestones.indexOf(milestoneId);
+            if (indexOfInterest > -1) {
+                g.milestones.splice(indexOfInterest, 1);
+                g.save()
+                    .then(savedG => {
+                        res.status(200).json({
+                            message: 'Habit with ID ' + milestoneId + ' was deleted from goal with id: ' + goalId,
+                        })
+                    }).catch(err => {
+                        res.status(500).json({ error: err });
+                    });
+            } else {
+                res.status(500).json({ error: 'No habit with this id was found broski' });
+            }
+        }).catch(err => {
+            res.status(500).json({ error: err });
+        });
+    }
+};
+
 exports.addHabitToGoal = (req, res, next) => {
     const goalId = req.params.goalId;
     let habitId = req.body.id;

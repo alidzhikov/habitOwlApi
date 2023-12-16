@@ -9,6 +9,10 @@ router.get('/', checkAuth, GoalController.getGoals);
 
 router.post('/:index', checkAuth, GoalController.createGoalOrSubgoal);
 
+router.patch('/milestones/edit/:milestoneId', checkAuth, GoalController.editMilestone);
+
+router.delete('/milestones/remove/:milestoneId/:goalId', checkAuth, GoalController.removeMilestone);
+
 router.patch('/milestones/:index', checkAuth, GoalController.createMilestone);
 
 router.patch('/habits/:goalId', checkAuth, GoalController.addHabitToGoal);
