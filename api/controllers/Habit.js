@@ -180,7 +180,7 @@ exports.updateHabit = (req, res, next) => {
 exports.addSpeedToHabit = (req, res, next) => {
     const habitId = req.params.habitId;
     //errorHelper.validationCheck(req);
-
+    console.log('add speed to habit')
     Habit.findById(habitId)
         .populate('speeds')
         .exec()
@@ -195,6 +195,7 @@ exports.addSpeedToHabit = (req, res, next) => {
                     userId: newSpeed.userId,
                     habitId: habit._id,
                     goalId: null,
+                    title: newSpeed.title,
                     createdDate: newSpeed.createdDate,
                     startDate: newSpeed.startDate,
                     endDate: newSpeed.endDate,
@@ -232,6 +233,7 @@ exports.editHabitSpeed = (req, res, next) => {
     const repetitions = req.body.repetitions;
     const priority = req.body.priority;
     const status = req.body.status;
+    const title = req.body.title;
     const startDate = req.body.startDate;
     const endDate = req.body.endDate;
     const speedToEdit = Speed.findById(speedId);
@@ -243,6 +245,7 @@ exports.editHabitSpeed = (req, res, next) => {
         speed.repetitions = repetitions;
         speed.priority = priority;
         speed.status = status;
+        speed.title = title;
         // check here if the dates are changed and update the associated entries
         speed.startDate = startDate;
         speed.endDate = endDate;

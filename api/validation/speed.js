@@ -7,6 +7,8 @@ exports.validateSpeedPeriod = function(habit, speeds) {
             newSpeed = speedModified;
         }
     });
+    return newSpeed;
+    //skip validation since we can have now multiple active speeds
     if (!newSpeed) return null;
     let newSpeedStart = new Date(newSpeed.startDate).getTime();
     let newSpeedEnd = newSpeed.endDate ? new Date(newSpeed.endDate).getTime() : null;

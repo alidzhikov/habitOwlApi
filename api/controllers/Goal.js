@@ -108,8 +108,20 @@ exports.updateGoal = (req, res, next) => {
     Goal.findById(goalId)
         .then(goal => {
             errorHelper.isItemFound(goal, 'goal');
+            if (goal.parentGoalId != parentGoalId) {
+                goal.parentGoalId = parentGoalId;
+                Goal.findById(parentGoalId)
+                .then(parentGoal => {
+                    parentGoal.subGoals.push(goalId);
+                })
+                .catch(err => console.log(err));
+                Goal.findById(goal.parentGoalId)
+                .then(oldParentGoal => {
+
+                })
+                .catch(err => console.log(err));
+            }
             goal.title = title;
-            goal.parentGoalId = parentGoalId;
             goal.description = description;
             goal.category = category;
             goal.measure = measure;
@@ -277,6 +289,33 @@ exports.removeHabitFromGoal = (req, res, next) => {
             } else {
                 res.status(500).json({ error: 'No habit with this id was found broski' });
             }
+        }).catch(err => {
+            res.status(500).json({ error: err });
+        });
+    }
+};
+
+exports.addSpeedToGoal = (req, res, next) => {
+    const goalId = req.params.goalId;
+    let speedId = req.body.id;
+    if (!speedId) {
+        speedId = new mongoose.Types.ObjectId();
+        const newSpeed = new Speed({
+            _id: speedId
+        });
+        //etc
+        next();
+    } else {
+        Goal.findById(goalId).then(g => {
+            g.speeds.push(speedId);
+            g.save()
+                .then(savedG => {
+                    res.status(200).json({
+                        message: 'Speed added to goal with id: ' + g.id,
+                    })
+                }).catch(err => {
+                    res.status(500).json({ error: err });
+                });
         }).catch(err => {
             res.status(500).json({ error: err });
         });
