@@ -13,12 +13,23 @@ exports.objectAssignIfExists = function (old, modified, skipList) {
     }
 }
 
-exports.updateSpeedGoal = function(speedId, newGoalId, callback) {
+exports.updateSpeedGoal = function(speedId, oldSpeedId, newGoalId, callback) {
     // make it atomic later
     Speed.findById(speedId)
     .then(speed => {
         speed.goal = newGoalId;
         return speed.save();
+    })
+    .then(j => {
+        if (oldSpeedId) {
+            return Speed.findById(oldSpeedId)
+            .then(oldSpeed => {
+                oldSpeed.goal = null;
+                return oldSpeed.save();
+            });
+        } else {
+            return;
+        }
     })
     .then(j => callback != null ? callback() : null)
     .catch(e => {});
