@@ -146,7 +146,10 @@ exports.updateGoal = (req, res, next) => {
             goal.endDate = endDate;
             goal.completionDate = completionDate;
             goal.habits = habits;
-            oldSpeed = goal.speeds[0];
+            if (goal.speeds[0] !== speedId) {
+                oldSpeed = goal.speeds[0];
+            }
+            
             goal.speeds = [speedId];
 
             goal.save()
