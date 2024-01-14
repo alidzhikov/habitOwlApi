@@ -11,7 +11,7 @@ exports.getHabitSpeeds = (req, res, next) => {
     }
     const speedIds = speedIdParams.split(',');
     Speed.find({'_id': {$in: speedIds}})
-        .populate('goals')
+        .populate('goal')
         .then(result => {
             res.status(200).json({habitSpeeds: result});
         })

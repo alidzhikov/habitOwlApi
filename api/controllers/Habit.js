@@ -1,4 +1,5 @@
 const Habit = require('../models/habit');
+const Goal = require('../models/goal');
 const Speed = require('../models/speed');
 const helpers = require('../common/helpers');
 const mongoose = require('mongoose');
@@ -24,7 +25,10 @@ const entriesPopulateOptionById = {
 
 const speedsPopulateOptions = {
     path: 'speeds',
-    options: {sort: '-startDate'}
+    options: {sort: '-startDate'},
+    populate : {
+        path : 'goal'
+    }
 };
 
 exports.getHabits = (req, res, next) => {
@@ -32,7 +36,12 @@ exports.getHabits = (req, res, next) => {
     console.log('___GET HABITS _____')
     Habit.find({'userId': req.userData.userId})
         .select('_id userId goals title comment category measure createdDate speeds entries')
-        .populate('speeds')
+        .populate({
+            path : 'speeds',
+            populate : {
+              path : 'goal'
+            }
+          })
         .populate(entriesPopulateOptions)
     .exec()
     .then(docs => {
@@ -194,7 +203,7 @@ exports.addSpeedToHabit = (req, res, next) => {
                     _id: new mongoose.Types.ObjectId(),
                     userId: newSpeed.userId,
                     habitId: habit._id,
-                    goalId: null,
+                    goal: newSpeed.goal,
                     title: newSpeed.title,
                     createdDate: newSpeed.createdDate,
                     startDate: newSpeed.startDate,
@@ -208,7 +217,18 @@ exports.addSpeedToHabit = (req, res, next) => {
                     .then(createdSpeed => {
                         habit.speeds.push(createdSpeed._id);
                         habit.save().then(updatedHabit => {
-                            res.status(200).json({ message: 'Speed updated!' });
+                            if (!newSpeed.goal) {
+                                return res.status(200).json({ message: 'Speed updated!'  });
+                            } 
+                            Goal.findById(newSpeed.goal).then(goalRes => {
+                                if (goalRes) {
+
+                                    goalRes.speeds.push(createdSpeed.id);
+                                    return goalRes.save();
+                                } else {
+                                    return res.status(200).json({ message: 'Speed updated!' });
+                                }
+                            }).then(savedG => res.status(200).json({ message: 'Speed updated!'  }));
                         });
                     }).catch(err => {
                         console.log(err);

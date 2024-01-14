@@ -1,8 +1,11 @@
 const Goal = require('../models/goal');
 const Habit = require('../models/habit');
+const Speed = require('../models/speed');
 const Milestone = require('../models/milestone');
 const mongoose = require('mongoose');
 const errorHelper = require('../validation/error');
+const helpers = require('../common/helpers');
+
 
 exports.getGoals = (req, res, next) => {
     Goal.find({ 'userId': req.userData.userId, 'parentGoalId': null })
@@ -36,6 +39,7 @@ exports.getGoalById = (req, res, next) => {
 exports.createGoalOrSubgoal = (req, res, next) => {
     const newGoalId = new mongoose.Types.ObjectId();
     const index = parseInt(req.params.index);
+    const speedId = req.body.speeds[0];
     const subGoal = new Goal({
         _id: newGoalId,
         userId: req.body.userId,
@@ -50,12 +54,17 @@ exports.createGoalOrSubgoal = (req, res, next) => {
         createdDate: req.body.createdDate,
         endDate: req.body.endDate,
         completionDate: req.body.completionDate,
-        habits: [],
+        habits: req.body.habits,
+        speeds: [speedId],
         milestones: [],
         subGoals: []
     });
     subGoal.save()
         .then(g => {
+            // make it atomic later
+            helpers.updateSpeedGoal(speedId, newGoalId);
+             
+            // update parent goal
             if (!g.parentGoalId) {
                 res.status(200).json({
                     message: 'Goal added to goal with id: ' + g.id,
@@ -74,7 +83,8 @@ exports.createGoalOrSubgoal = (req, res, next) => {
                         }
                         return parentGoal.save();
                     }
-                }).then(g => {
+                })
+                .then(g => {
                     if (g && subGoal && subGoal.id) {
                         res.status(200).json({
                             message: 'Sub Goal added to goal with id: ' + g.id,
@@ -84,6 +94,8 @@ exports.createGoalOrSubgoal = (req, res, next) => {
                         res.status(500).json({ error: 'Error occured goal or sub Goal failed!' });
                     }
                 });
+           
+
         })
         .catch(err => {
             console.log(err);
@@ -104,6 +116,9 @@ exports.updateGoal = (req, res, next) => {
     const priority = req.body.priority;
     const completionDate = req.body.completionDate;
     const endDate = req.body.endDate;
+    const habits = req.body.habits;
+    const speedId = req.body.speeds[0];
+    let oldSpeed;
 
     Goal.findById(goalId)
         .then(goal => {
@@ -130,9 +145,24 @@ exports.updateGoal = (req, res, next) => {
             goal.priority = priority;
             goal.endDate = endDate;
             goal.completionDate = completionDate;
+            goal.habits = habits;
+            oldSpeed = goal.speeds[0];
+            goal.speeds = [speedId];
 
             goal.save()
-                .then(g => res.status(200).json({ message: 'Goal updated!', success: true, result: g }))
+                .then(g => {
+                    // make it atomic later
+                    helpers.updateSpeedGoal(
+                        speedId,
+                        goalId,
+                        () => res.status(200).json({ message: 'Goal updated!', success: true, result: g })
+                    );
+                    helpers.updateSpeedGoal(
+                        oldSpeed,
+                        null,
+                        () => res.status(200).json({ message: 'Goal updated!', success: true, result: g })
+                    );
+                })
                 .catch(err => {
                     err.statusCode = 500;
                     next();
@@ -310,9 +340,17 @@ exports.addSpeedToGoal = (req, res, next) => {
             g.speeds.push(speedId);
             g.save()
                 .then(savedG => {
-                    res.status(200).json({
-                        message: 'Speed added to goal with id: ' + g.id,
-                    })
+                    Speed.findById(speedId)
+                        .then(s => {
+                            s.goalId = goalId;
+                            return s.save();
+                        }).then(savedS => {
+                            res.status(200).json({
+                                message: 'Speed added to goal with id: ' + g.id,
+                            });
+                        }).catch(err => {
+                            res.status(500).json({ error: err });
+                        });
                 }).catch(err => {
                     res.status(500).json({ error: err });
                 });

@@ -22,8 +22,6 @@ const goalSchema = mongoose.Schema({
     speeds: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Speed' }],
 });
 
-/// goal is to read books 
-// 
 var autoPopulateMilestones = function (next) {
     this.populate({ path: 'milestones', model: 'Milestone' });
     this.populate({ path: 'subGoals', model: 'Goal' });
@@ -31,6 +29,9 @@ var autoPopulateMilestones = function (next) {
     this.populate({ path: 'speeds', model: 'Speed' });
     next();
 };
+
+goalSchema.pre('find', autoPopulateMilestones);
+
 var deleteNestedGoals = function(next) {
     var id = this.getQuery()['_id'];
     GoalModel.findById(id).then(goal => {
@@ -48,16 +49,7 @@ var deleteNestedGoals = function(next) {
     }).catch(e => {console.log(e); next()});
 };
 
-goalSchema.pre('find', autoPopulateMilestones);
 goalSchema.pre(['delete', 'remove', 'findAndRemove', 'deleteMany','deleteOne'], deleteNestedGoals);
 
 const GoalModel = mongoose.model('Goal', goalSchema);
 module.exports = GoalModel;
-
-function removeItemOnce(arr, value) {
-    var index = arr.indexOf(value);
-    if (index > -1) {
-      arr.splice(index, 1);
-    }
-    return arr;
-  }
