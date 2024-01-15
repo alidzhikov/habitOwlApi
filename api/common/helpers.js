@@ -14,6 +14,9 @@ exports.objectAssignIfExists = function (old, modified, skipList) {
 }
 
 exports.updateSpeedGoal = function(speedId, oldSpeedId, newGoalId, callback) {
+    if (speedId == oldSpeedId) {
+        return callback != null ? callback() : null;
+    }
     // make it atomic later
     Speed.findById(speedId)
     .then(speed => {
