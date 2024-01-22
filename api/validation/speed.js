@@ -1,4 +1,4 @@
-const speedStatus = require('../models/mappings/speedStatus');
+const speedStatus = require('../models/mappings/goalStatus');
 
 exports.validateSpeedPeriod = function(habit, speeds) {
     let newSpeed;

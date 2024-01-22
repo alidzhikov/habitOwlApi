@@ -8,13 +8,13 @@ const speedSchema = mongoose.Schema({
     // goals: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Goal', required: false }],
     goal: { type: mongoose.Schema.Types.ObjectId, ref: 'Goal', required: false },
     createdDate: { type: Date, required: true },
-    startDate: { type: Date, required: true },
+    startDate: { type: Date, required: false },
     endDate: Date,
-    priority: { type: Number, required: true },
+    //priority: { type: Number, required: true },
     habitTimeFrame: { type: Number, required: true },
     repetitions: { type: Number, required: true },
-    isActive: { type: Boolean, default: false },
-    status: { type: Number, required: true, default: 1 }
+    // isActive: { type: Boolean, default: false },
+    // status: { type: Number, required: true, default: 1 }
 });
 
 module.exports = mongoose.model('Speed', speedSchema);

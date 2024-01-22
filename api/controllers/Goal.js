@@ -49,6 +49,8 @@ exports.createGoalOrSubgoal = (req, res, next) => {
         category: req.body.category,
         measure: req.body.measure,
         engine: req.body.engine,
+        status: req.body.status,
+        activeSpeed: req.body.activeSpeed,
         target: req.body.target,
         priority: req.body.priority,
         createdDate: req.body.createdDate,
@@ -59,6 +61,29 @@ exports.createGoalOrSubgoal = (req, res, next) => {
         milestones: [],
         subGoals: []
     });
+    const activeSpeed = req.body.activeSpeed;
+    const activeSpeedId = activeSpeed ? activeSpeed.id ? activeSpeed.id : new mongoose.Types.ObjectId() : null;
+    if (activeSpeed && !activeSpeed.id) {
+
+        let createdSpeed = new Speed({
+            _id: activeSpeedId,
+            userId: req.body.userId,
+            habitId: req.body.habits[0],
+            goal: subGoal.id,
+            title: activeSpeed.title,
+            createdDate: activeSpeed.createdDate,
+            startDate: activeSpeed.startDate,
+            endDate: activeSpeed.endDate,
+            //priority: newSpeed.priority,
+            habitTimeFrame: activeSpeed.habitTimeFrame,
+            repetitions: activeSpeed.repetitions,
+            //status: newSpeed.status
+        });
+        createdSpeed.save();
+    } else {
+        // update speeds goal to be the correct one
+    }
+    subGoal.activeSpeed = activeSpeedId;
     subGoal.save()
         .then(g => {
             // make it atomic later
@@ -111,6 +136,8 @@ exports.updateGoal = (req, res, next) => {
     const description = req.body.description;
     const category = req.body.category;
     const measure = req.body.measure;
+    const status = req.body.status;
+    const activeSpeed = req.body.activeSpeed;
     const engine = req.body.engine;
     const target = req.body.target;
     const priority = req.body.priority;
@@ -119,6 +146,10 @@ exports.updateGoal = (req, res, next) => {
     const habits = req.body.habits;
     const speedId = req.body.speeds[0];
     let oldSpeed;
+
+    if (!activeSpeed.id) {
+
+    }
 
     Goal.findById(goalId)
         .then(goal => {
@@ -140,6 +171,8 @@ exports.updateGoal = (req, res, next) => {
             goal.description = description;
             goal.category = category;
             goal.measure = measure;
+            goal.status = status;
+            goal.activeSpeed = activeSpeed;
             goal.engine = engine;
             goal.target = target;
             goal.priority = priority;
@@ -336,7 +369,8 @@ exports.addSpeedToGoal = (req, res, next) => {
         next();
     } else {
         Goal.findById(goalId).then(g => {
-            g.speeds.push(speedId);
+            g.speeds.push( g.activeSpeed);
+            g.activeSpeed = speedId;
             g.save()
                 .then(savedG => {
                     Speed.findById(speedId)

@@ -31,6 +31,7 @@ exports.saveEntry = (req, res, next) => {
     const newEntry = new Entry({
         userId: req.body.userId,
         habitId: req.body.habitId,
+        goalId: req.body.goalId,
         speedId: req.body.speedId,
         performance: req.body.performance,
         date: req.body.date,

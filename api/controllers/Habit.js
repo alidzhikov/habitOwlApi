@@ -6,7 +6,7 @@ const mongoose = require('mongoose');
 const entryQueries = require('../queries/entry');
 const errorHelper = require('../validation/error');
 const speedValidation = require('../validation/speed');
-const speedStatus = require('../models/mappings/speedStatus');
+const speedStatus = require('../models/mappings/goalStatus');
 
 //extract these to separate file 
 var twoDaysAgoDate = new Date();
@@ -101,10 +101,10 @@ exports.createHabit = (req, res, next) => {
             createdDate: speed.createdDate,
             startDate: speed.startDate,
             endDate: speed.endDate,
-            priority: speed.priority,
+            //priority: speed.priority,
             habitTimeFrame: speed.habitTimeFrame,
             repetitions: speed.repetitions,
-            status: speedStatus.active
+            //status: speedStatus.active
         });
     });
     newSpeed.save()
@@ -208,10 +208,10 @@ exports.addSpeedToHabit = (req, res, next) => {
                     createdDate: newSpeed.createdDate,
                     startDate: newSpeed.startDate,
                     endDate: newSpeed.endDate,
-                    priority: newSpeed.priority,
+                    //priority: newSpeed.priority,
                     habitTimeFrame: newSpeed.habitTimeFrame,
                     repetitions: newSpeed.repetitions,
-                    status: newSpeed.status
+                    //status: newSpeed.status
                 });
                 return createdSpeed.save()
                     .then(createdSpeed => {
