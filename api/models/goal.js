@@ -46,7 +46,7 @@ console.log(this.getQuery());
     next();
 };
 
-goalSchema.pre('find', autoPopulateMilestones);
+//goalSchema.pre('find', autoPopulateMilestones);
 
 var deleteNestedGoals = function (next) {
     var id = this.getQuery()['_id'];
