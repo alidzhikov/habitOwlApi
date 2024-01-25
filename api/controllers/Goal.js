@@ -43,7 +43,8 @@ exports.getTrackedGoals = (req, res, next) => {
             model: 'Habit', 
             populate: {
                 path: 'speeds',
-                model: 'Speed'
+                model: 'Speed',
+                select: '-goal'
             },
             populate: {
                 path: 'entries',
