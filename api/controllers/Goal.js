@@ -19,6 +19,10 @@ exports.getGoals = (req, res, next) => {
         });
 };
 
+exports.getTrackedGoals = (req,res,next) => {
+    Goal.find({ 'userId': req.userData.userId,)
+}
+
 exports.getGoalById = (req, res, next) => {
     const id = req.params.hoalId;
     Goal.findById(id)
@@ -172,7 +176,7 @@ exports.updateGoal = (req, res, next) => {
             goal.category = category;
             goal.measure = measure;
             goal.status = status;
-            goal.activeSpeed = activeSpeed;
+            goal.activeSpeed = activeSpeed && activeSpeed.id ? activeSpeed : null;
             goal.engine = engine;
             goal.target = target;
             goal.priority = priority;
@@ -196,6 +200,7 @@ exports.updateGoal = (req, res, next) => {
                     );
                 })
                 .catch(err => {
+                    console.log(err);
                     err.statusCode = 500;
                     next();
                 });
