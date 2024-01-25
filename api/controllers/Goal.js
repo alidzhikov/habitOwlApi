@@ -91,7 +91,7 @@ exports.createGoalOrSubgoal = (req, res, next) => {
     subGoal.save()
         .then(g => {
             // make it atomic later
-            helpers.updateSpeedGoal(speedId, null, newGoalId);
+            //helpers.updateSpeedGoal(speedId, null, newGoalId);
              
             // update parent goal
             if (!g.parentGoalId) {
