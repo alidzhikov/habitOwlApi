@@ -6,9 +6,26 @@ const mongoose = require('mongoose');
 const errorHelper = require('../validation/error');
 const helpers = require('../common/helpers');
 
-
 exports.getGoals = (req, res, next) => {
     Goal.find({ 'userId': req.userData.userId, 'parentGoalId': null })
+        .populate({ path: 'activeSpeed', model: 'Speed' })
+        .populate({ 
+            path: 'subGoals', 
+            model: 'Goal',
+        })
+        .populate({
+            path: 'habits',
+            model: 'Habit', 
+            populate: {
+                path: 'speeds',
+                model: 'Speed'
+            },
+            populate: {
+                path: 'entries',
+                model: 'Entry'
+            }
+        })
+        .populate({ path: 'milestones', model: 'Milestone' })
         .exec()
         .then(docs => {
             res.status(200).json({ goals: docs });
@@ -19,8 +36,28 @@ exports.getGoals = (req, res, next) => {
         });
 };
 
-exports.getTrackedGoals = (req,res,next) => {
-    Goal.find({ 'userId': req.userData.userId,)
+exports.getTrackedGoals = (req, res, next) => {
+    Goal.find({ 'userId': req.userData.userId })
+        .populate({
+            path: 'habits',
+            model: 'Habit', 
+            populate: {
+                path: 'speeds',
+                model: 'Speed'
+            },
+            populate: {
+                path: 'entries',
+                model: 'Entry'
+            }
+        })
+        .exec()
+        .then(docs => {
+            res.status(200).json({ goals: docs });
+        })
+        .catch(err => {
+            console.log(err);
+            res.status(500).json({ error: err });
+        });
 }
 
 exports.getGoalById = (req, res, next) => {
@@ -226,7 +263,7 @@ exports.createMilestone = (req, res, next) => {
     });
     milestone.save()
         .then(m => {
-            Goal.find({ 'userId': req.userData.userId, '_id': m.goalId })
+            Goal.find({ 'userId': req.userData.userId, '_id': m.goalId })//do it wuth findbyid instead after checking user id thing
                 .then((res) => {
                     let parentGoal = res[0];
                     if (parentGoal && parentGoal.id) {

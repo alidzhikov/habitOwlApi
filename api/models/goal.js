@@ -28,18 +28,7 @@ const goalSchema = mongoose.Schema({
 var autoPopulateMilestones = function (next) {
 console.log(this.getQuery());
     this.populate({ path: 'milestones', model: 'Milestone' });
-    this.populate({ path: 'subGoals', model: 'Goal', populate: {
-        path: 'habits',
-        model: 'Habit', 
-        populate: {
-            path: 'speeds',
-            model: 'Speed'
-        },
-        populate: {
-            path: 'entries',
-            model: 'Entry'
-        }
-    } });
+    this.populate({ path: 'subGoals', model: 'Goal' });
     this.populate({
         path: 'habits',
         model: 'Habit', 
