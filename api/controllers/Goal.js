@@ -41,15 +41,15 @@ exports.getTrackedGoals = (req, res, next) => {
         .populate({
             path: 'habits',
             model: 'Habit', 
-            populate: {
+            populate: [{
                 path: 'speeds',
                 model: 'Speed',
                 select: '-goal'
-            },
-            populate: {
+            }, 
+            {
                 path: 'entries',
                 model: 'Entry'
-            }
+            }]
         })
         .exec()
         .then(docs => {
