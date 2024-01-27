@@ -42,6 +42,10 @@ exports.getHabits = (req, res, next) => {
               path : 'goal'
             }
           })
+          .populate({
+            path : 'goals',
+            model: 'Goal'
+          })
         .populate(entriesPopulateOptions)
     .exec()
     .then(docs => {
@@ -57,6 +61,7 @@ exports.getHabits = (req, res, next) => {
                     measure: doc.measure,
                     speeds: doc.speeds,
                     entries: doc.entries,
+                    goals: doc.goals,
                     createdDate: doc.createdDate
                 }
             })

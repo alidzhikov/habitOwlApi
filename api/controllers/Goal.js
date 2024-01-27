@@ -12,6 +12,9 @@ exports.getGoals = (req, res, next) => {
         .populate({ 
             path: 'subGoals', 
             model: 'Goal',
+            populate: {
+                path: 'habits',
+                model: 'Habit', }
         })
         .populate({
             path: 'habits',
@@ -82,6 +85,7 @@ exports.createGoalOrSubgoal = (req, res, next) => {
     const newGoalId = new mongoose.Types.ObjectId();
     const index = parseInt(req.params.index);
     const speedId = req.body.speeds[0];
+    const habits = req.body.habits;
     const subGoal = new Goal({
         _id: newGoalId,
         userId: req.body.userId,
@@ -98,7 +102,7 @@ exports.createGoalOrSubgoal = (req, res, next) => {
         createdDate: req.body.createdDate,
         endDate: req.body.endDate,
         completionDate: req.body.completionDate,
-        habits: req.body.habits,
+        habits: habits,
         speeds: [speedId],
         milestones: [],
         subGoals: []
@@ -130,6 +134,7 @@ exports.createGoalOrSubgoal = (req, res, next) => {
         .then(g => {
             // make it atomic later
             //helpers.updateSpeedGoal(speedId, null, newGoalId);
+            helpers.updateHabitGoals(habits ,null, newGoalId);
              
             // update parent goal
             if (!g.parentGoalId) {
@@ -186,12 +191,6 @@ exports.updateGoal = (req, res, next) => {
     const completionDate = req.body.completionDate;
     const endDate = req.body.endDate;
     const habits = req.body.habits;
-    const speedId = req.body.speeds[0];
-    let oldSpeed;
-
-    if (!activeSpeed.id) {
-
-    }
 
     Goal.findById(goalId)
         .then(goal => {
@@ -220,29 +219,36 @@ exports.updateGoal = (req, res, next) => {
             goal.priority = priority;
             goal.endDate = endDate;
             goal.completionDate = completionDate;
+            var oldHabits = goal.habits;
             goal.habits = habits;
-            if (goal.speeds[0] !== speedId) {
-                oldSpeed = goal.speeds[0];
-            }
+          
             
-            goal.speeds = [speedId];
+            //goal.speeds = [speedId];
 
             goal.save()
-                .then(g => {
+                .then(g => 
                     // make it atomic later
-                    helpers.updateSpeedGoal(
-                        speedId,
-                        oldSpeed,
-                        goalId,
+                    // helpers.updateSpeedGoal(
+                    //     speedId,
+                    //     oldSpeed,
+                    //     goalId,
+                    //     () => )
+                    // );
+                    helpers.updateHabitGoals(
+                        habits,
+                        oldHabits,
+                        g.id,
                         () => res.status(200).json({ message: 'Goal updated!', success: true, result: g })
-                    );
-                })
+                    )
+                )
                 .catch(err => {
                     console.log(err);
                     err.statusCode = 500;
                     next();
                 });
         }).catch(err => {
+            console.log(err);
+
             err.statusCode = 500;
             next();
         });
