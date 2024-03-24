@@ -10,7 +10,7 @@ const speedStatus = require('../models/mappings/goalStatus');
 
 //extract these to separate file 
 var twoDaysAgoDate = new Date();
-twoDaysAgoDate.setDate(twoDaysAgoDate.getDate() - 7);
+twoDaysAgoDate.setDate(twoDaysAgoDate.getDate() - 722);
 const entriesPopulateOptions = {
     path: 'entries', select: '_id speedId habitId performance date createdDate', 
     match: {
@@ -35,7 +35,7 @@ exports.getHabits = (req, res, next) => {
     console.log(req.userData.userId);
     console.log('___GET HABITS _____')
     Habit.find({'userId': req.userData.userId})
-        .select('_id userId goals title comment category measure createdDate speeds entries')
+        .select('_id userId goals title comment imagePath category measure priority isNegative createdDate speeds entries')
         .populate({
             path : 'speeds',
             populate : {
@@ -49,22 +49,18 @@ exports.getHabits = (req, res, next) => {
         .populate(entriesPopulateOptions)
     .exec()
     .then(docs => {
+
+        // for (var habit of docs) {
+        //     if (habit.entries.length && habit.title == 'No video games') {
+        //         for(var )
+        //         // var entrySpeed = habit.speeds.find((s) => s.id == )
+        //         var currentStreak = 0;
+
+        //     }
+        // }
         const response = {
             count: docs.length,
-            habits: docs.map(doc => {
-                return {
-                    _id: doc._id,
-                    userId: doc.userId,
-                    title: doc.title,
-                    comment: doc.comment,
-                    category: doc.category,
-                    measure: doc.measure,
-                    speeds: doc.speeds,
-                    entries: doc.entries,
-                    goals: doc.goals,
-                    createdDate: doc.createdDate
-                }
-            })
+            habits: docs
         };
         res.status(200).json(response);
     })
@@ -148,18 +144,29 @@ exports.updateHabit = (req, res, next) => {
     //errorHelper.validationCheck(req);
     const title = req.body.title;
     const comment = req.body.comment;
+    const priority = req.body.priority;
+    const imagePath = req.body.imagePath;
+    const timeInDay = req.body.timeInDay;
     const category = req.body.category;
+    const isNegative = req.body.isNegative;
 
     Habit.findById(habitId)
         .then(habit => {
             errorHelper.isItemFound(habit, 'habit');
             habit.title = title;
             habit.comment = comment;
+            habit.priority = priority;
+            habit.imagePath = imagePath;
+            habit.timeInDay = timeInDay;
             habit.category = category;
+            habit.isNegative = isNegative;
             return habit.save();
         })
         .then(habit => {
             let updatedSpeed;
+            if (req.body.speeds.length == 0) {
+                res.status(200).json({ message: 'Habit updated!', editedHabit: habit });
+            }
             req.body.speeds.map(speedModified => {
                 entryQueries.getEntriesBySpeedId(speedModified.id)
                     .then(entries => {

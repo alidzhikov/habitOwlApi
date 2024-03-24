@@ -4,21 +4,11 @@ const errorHelper = require('../validation/error');
 
 exports.getEntries = (req, res, next) => {
     Entry.find()
-        .select('_id userId habitId performance date createdDate')
+        .select('_id userId habitId speedId goalId performance date createdDate')
         .exec()
-        .then(docs => {
+        .then(entries => {
             res.status(200).json({
-                count: docs.length,
-                habits: docs.map(doc => {
-                    return {
-                        _id: doc._id,
-                        userId: doc.userId,
-                        habitId: doc.habitId,
-                        performance: doc.performance,
-                        date: doc.date,
-                        createdDate: doc.createdDate
-                    }
-                })
+                entries: entries
             });
         })
         .catch(err => {

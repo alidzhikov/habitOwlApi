@@ -94,6 +94,7 @@ app.use('/entry', entryRoutes);
 app.use('/user', userRoutes);
 app.use('/goals', goalRoutes);
 app.use('/speeds', speedRoutes);
+app.use('/assets', express.static(__dirname + '/static'));
 
 app.use((req, res, next) => {
     const error = new Error('Not found');
