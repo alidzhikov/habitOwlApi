@@ -1,5 +1,6 @@
 const Habit = require('../models/habit');
 const Goal = require('../models/goal');
+const { StreaksList } = require('../models/computed/streaksList');
 const Speed = require('../models/speed');
 const helpers = require('../common/helpers');
 const mongoose = require('mongoose');
@@ -10,64 +11,78 @@ const speedStatus = require('../models/mappings/goalStatus');
 
 //extract these to separate file 
 var twoDaysAgoDate = new Date();
-twoDaysAgoDate.setDate(twoDaysAgoDate.getDate() - 722);
+twoDaysAgoDate.setDate(twoDaysAgoDate.getDate() - 7);
 const entriesPopulateOptions = {
-    path: 'entries', select: '_id speedId habitId performance date createdDate', 
+    path: 'entries', select: '_id speedId habitId performance date createdDate userId',
     match: {
         date: { $gte: twoDaysAgoDate }
-    }, 
-    options: {sort: '-date'}
+    },
+    options: { sort: '-date' }
 };
 const entriesPopulateOptionById = {
-    path: 'entries', select: '_id speedId habitId performance date createdDate',
-    options: {sort: '-date'}
+    path: 'entries', select: '_id speedId habitId performance date createdDate userId',
+    options: { sort: '-date' }
 };
 
 const speedsPopulateOptions = {
     path: 'speeds',
-    options: {sort: '-startDate'},
-    populate : {
-        path : 'goal'
+    options: { sort: '-startDate' },
+    populate: {
+        path: 'goal'
     }
 };
 
 exports.getHabits = (req, res, next) => {
     console.log(req.userData.userId);
     console.log('___GET HABITS _____')
-    Habit.find({'userId': req.userData.userId})
-        .select('_id userId goals title comment imagePath category measure priority isNegative createdDate speeds entries')
+    Habit.find({ 'userId': req.userData.userId })
+        .select('_id userId goals title comment imagePath category measure priority isNegative createdDate speeds entries streaks')
         .populate({
-            path : 'speeds',
-            populate : {
-              path : 'goal'
+            path: 'speeds',
+            populate: {
+                path: 'goal'
             }
-          })
-          .populate({
-            path : 'goals',
+        })
+        .populate({
+            path: 'goals',
             model: 'Goal'
-          })
+        })
         .populate(entriesPopulateOptions)
-    .exec()
-    .then(docs => {
+        .exec()
+        .then(docs => {
+            // var streaksList = new StreaksList();
+            // var promises = [];
+            // for (var habit of docs) {
+            //     if (habit.entries.length) {
+            //         var previousEntry = habit.entries[0];
+            //         var intervalToCheck = 'daily';
+            //         console.log(previousEntry.date);
+            //         for (var entry of habit.entries.slice(1)) {
+            //             console.log(entry.date)
+            //             console.log(differenceBetweenDays(entry.date, previousEntry.date))
+            //             const diff = differenceBetweenDays(entry.date, previousEntry.date);
 
-        // for (var habit of docs) {
-        //     if (habit.entries.length && habit.title == 'No video games') {
-        //         for(var )
-        //         // var entrySpeed = habit.speeds.find((s) => s.id == )
-        //         var currentStreak = 0;
-
-        //     }
-        // }
-        const response = {
-            count: docs.length,
-            habits: docs
-        };
-        res.status(200).json(response);
-    })
-    .catch(err => {
-        console.log(err);
-        res.status(500).json({error: err});
-    });
+            //             console.log('1 day difference');
+            //             promises.push(streaksList.update(habit, entry.date, diff));
+            //             previousEntry = entry;
+            //         }
+            //     }
+            // }
+            // return Promise.all(promises).then(r => {
+            return {
+                count: docs.length,
+                habits: docs,
+                //  streaksList: streaksList
+            }
+            // });
+        })
+        .then(response => {
+            res.status(200).json(response);
+        })
+        .catch(err => {
+            console.log(err);
+            res.status(500).json({ error: err });
+        });
 };
 
 exports.getHabitById = (req, res, next) => {
@@ -80,7 +95,7 @@ exports.getHabitById = (req, res, next) => {
             console.log(doc);
             if (doc) {
                 res.status(200).json(doc);
-            } else {    
+            } else {
                 res.status(404).json({ message: 'No habit found for provided ID.' });
             }
         })
@@ -230,8 +245,8 @@ exports.addSpeedToHabit = (req, res, next) => {
                         habit.speeds.push(createdSpeed._id);
                         habit.save().then(updatedHabit => {
                             if (!newSpeed.goal) {
-                                return res.status(200).json({ message: 'Speed updated!'  });
-                            } 
+                                return res.status(200).json({ message: 'Speed updated!' });
+                            }
                             Goal.findById(newSpeed.goal).then(goalRes => {
                                 if (goalRes) {
 
@@ -240,7 +255,7 @@ exports.addSpeedToHabit = (req, res, next) => {
                                 } else {
                                     return res.status(200).json({ message: 'Speed updated!' });
                                 }
-                            }).then(savedG => res.status(200).json({ message: 'Speed updated!'  }));
+                            }).then(savedG => res.status(200).json({ message: 'Speed updated!' }));
                         });
                     }).catch(err => {
                         console.log(err);
@@ -283,15 +298,15 @@ exports.editHabitSpeed = (req, res, next) => {
         speed.endDate = endDate;
         return speed.save();
     })
-    .then(result => {
-        res.status(200).json({ message: 'Speed updated!', success: true, result: result });
-    })
-    .catch(err => {
-        if (!err.statusCode) {
-            err.statusCode = 500;
-        }
-        next(err);
-    });
+        .then(result => {
+            res.status(200).json({ message: 'Speed updated!', success: true, result: result });
+        })
+        .catch(err => {
+            if (!err.statusCode) {
+                err.statusCode = 500;
+            }
+            next(err);
+        });
 };
 
 exports.deleteHabit = (req, res, next) => {
@@ -305,15 +320,15 @@ exports.deleteHabit = (req, res, next) => {
         speedsToDelete.push(req.query['speedId' + i]);
         i++;
     }
-    Speed.deleteMany({'_id':{$in: speedsToDelete}}).then(r => console.log('Speeds deleted ' + speedsToDelete )).catch(e => console.log(e));
+    Speed.deleteMany({ '_id': { $in: speedsToDelete } }).then(r => console.log('Speeds deleted ' + speedsToDelete)).catch(e => console.log(e));
 
-    Habit.findOneAndRemove({_id: id})
-    .exec()
-    .then(response => {
-        res.status(200).json({message:'Succesfully deleted habit.'});
-    })
-    .catch(err => {
-        console.log(err);
-        res.status(500).json({error: err});
-    });
+    Habit.findOneAndRemove({ _id: id })
+        .exec()
+        .then(response => {
+            res.status(200).json({ message: 'Succesfully deleted habit.' });
+        })
+        .catch(err => {
+            console.log(err);
+            res.status(500).json({ error: err });
+        });
 };
